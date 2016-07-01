@@ -122,7 +122,7 @@ public class ListedFrog extends Fragment {
 
         screen.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 PopupMenu pop = new PopupMenu(parent.getContext(), view);
                 pop.getMenuInflater().inflate(R.menu.del_menu_pop,pop.getMenu());
 
@@ -133,7 +133,7 @@ public class ListedFrog extends Fragment {
                     public boolean onMenuItemClick(MenuItem item) {
                         if(item.getItemId() == R.id.delete){
                             wordData.moveToPosition(index);
-                            adapter.remove(wordData.getString(index));
+                            adapter.remove(wordData.getString(2));
                             getActivity().getContentResolver().delete(DBURI,""+(index+1),new String[]{"pos"});
                             adapter.notifyDataSetChanged();
                         }
