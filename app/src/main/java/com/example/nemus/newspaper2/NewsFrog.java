@@ -92,6 +92,10 @@ public class NewsFrog extends Fragment{
                     i.setData(u);
                     startActivity(i);
                     toast = Toast.makeText(getActivity(),urlCatch.getJSONObject(position).getString("webUrl"), Toast.LENGTH_LONG);
+                    /*cs = cr.query(REC_URI , null , urlCatch.getJSONObject(position).getString("webTitle") , new String[]{"webTitle"} ,null);
+                    if(cs.moveToNext()){
+                        cr.delete(REC_URI,urlCatch.getJSONObject(position).getString("webTitle"),new String[]{"webTitle"});
+                    }*/
                     cv.put("webTitle",urlCatch.getJSONObject(position).getString("webTitle"));
                     cv.put("webUrl",urlCatch.getJSONObject(position).getString("webUrl"));
                     cv.put("pos",lastNum+1);
@@ -144,7 +148,7 @@ public class NewsFrog extends Fragment{
                     }
                 });
                 pop.show();
-                return false;
+                return true;
             }
         });
 

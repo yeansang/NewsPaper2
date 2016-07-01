@@ -1,6 +1,5 @@
 package com.example.nemus.newspaper2;
 
-import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
@@ -11,7 +10,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.widget.PopupMenu;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,9 +17,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
-
-import org.json.JSONException;
 
 import java.util.ArrayList;
 
@@ -141,7 +136,7 @@ public class ListedFrog extends Fragment {
                     }
                 });
                 pop.show();
-                return false;
+                return true;
             }
         });
 
