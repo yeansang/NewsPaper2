@@ -56,15 +56,17 @@ public class MainActivity extends AppCompatActivity {
 
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(final Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         MenuInflater setting = getMenuInflater();
         setting.inflate(R.menu.menu_main,menu);
         menu.getItem(0).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
-                NewsFrog.refresh();
-                return false;
+                if(menuItem.getItemId() == R.id.action_settings) {
+                    NewsFrog.refresh();
+                }
+                return true;
             }
         });
 
