@@ -35,7 +35,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //new DBConnect(getApplicationContext(),"news.db",null,1).dropTable();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -94,11 +93,11 @@ public class MainActivity extends AppCompatActivity {
             // Return a PlaceholderFragment (defined as a static inner class below).
             switch(position){
                 case 0:
-                    return NewsFrog.newInstance();
+                    return NewsFrog.newInstance();//뉴스 페이지 보여주기
                 case 1:
-                    return ListedFrog.newInstance(R.layout.fragment_fav, R.id.fav_listView,"fav");
+                    return ListedFrog.newInstance(R.layout.fragment_fav, R.id.fav_listView,"fav");//즐겨찾기 보여주기
                 case 2:
-                    return ListedFrog.newInstance(R.layout.fragment_rec, R.id.rec_listView,"rec");
+                    return ListedFrog.newInstance(R.layout.fragment_rec, R.id.rec_listView,"rec");//최근 본 뉴스 보여주기
                 default:
                     return null;
             }

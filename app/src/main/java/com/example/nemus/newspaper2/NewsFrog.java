@@ -46,10 +46,11 @@ public class NewsFrog extends Fragment{
         return fragment;
     }
 
+
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-
+        //뉴스 데이터 불러오기. 뉴스 데이터는 만들어질때 1번만 불러온다.
         try {
             newsArray = new GetGuardianNews().execute().get();
 
@@ -73,36 +74,15 @@ public class NewsFrog extends Fragment{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        //초기화
         View rootView = inflater.inflate(R.layout.fragment_news, container, false);
-        //final DBConnect dbConnect = new DBConnect(getActivity(), "news.db",null,1);
         screen = (ListView) rootView.findViewById(R.id.news_listView);
-
-        /*ArrayList<String> saveWord = new ArrayList<String>();
-        Log.d("tag", "news create");
-
-        JSONArray newsArray =null;
-        try {
-            newsArray = new GetGuardianNews().execute().get();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        if(newsArray!=null){
-            for(int i=0;i<newsArray.length();i++){
-                try {
-                    saveWord.add(newsArray.getJSONObject(i).getString("webTitle"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        }else{
-            saveWord.add("Fail News read");
-        }*/
-
         adapter= new ArrayAdapter<String>(getActivity(), android.R.layout.simple_expandable_list_item_1,saveWord);
         screen.setAdapter(adapter);
 
         final JSONArray urlCatch = newsArray;
 
+        //짧은 클릭 리스너 설정
         screen.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -111,33 +91,29 @@ public class NewsFrog extends Fragment{
                 ContentValues cv = new ContentValues();
 
                 try {
+                    //외부 연결부분. 기본 인터넷으로 연결한다.
                     Intent i = new Intent(Intent.ACTION_VIEW);
                     Uri u = Uri.parse(urlCatch.getJSONObject(position).getString("webUrl"));
                     i.setData(u);
                     startActivity(i);
+                    //팝업 설정
                     toast = Toast.makeText(getActivity(),urlCatch.getJSONObject(position).getString("webUrl"), Toast.LENGTH_LONG);
-                    /*cs = cr.query(REC_URI , null , urlCatch.getJSONObject(position).getString("webTitle") , new String[]{"webTitle"} ,null);
-                    if(cs.moveToNext()){
-                        cr.delete(REC_URI,urlCatch.getJSONObject(position).getString("webTitle"),new String[]{"webTitle"});
-                    }*/
+                    //저장용 데이터
                     cv.put("webTitle",urlCatch.getJSONObject(position).getString("webTitle"));
                     cv.put("webUrl",urlCatch.getJSONObject(position).getString("webUrl"));
-
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                //팝업 보이기
                 toast.setGravity(Gravity.CENTER, 0, 0);
                 toast.show();
-
+                //최근글 db에 집어넣기
                 cr.insert(REC_URI,cv);
                 cv.clear();
-
-                //Cursor cs = cr.query(REC_URI,null,null,null,null);
-
             }
         });
 
-
+        //긴 클릭 리스너 설정
         screen.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -149,7 +125,6 @@ public class NewsFrog extends Fragment{
                 pop.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        //
                         ContentResolver cr = getActivity().getContentResolver();
                         ContentValues cv = new ContentValues();
                         try {
@@ -158,6 +133,7 @@ public class NewsFrog extends Fragment{
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+                        //즐겨찾기 db에 집어넣기
                         cr.insert(FAV_URI,cv);
                         cv.clear();
                         return false;

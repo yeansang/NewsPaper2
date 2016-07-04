@@ -88,7 +88,7 @@ public class myContentProvider extends ContentProvider {
                     db.execSQL("DELETE FROM REC WHERE webTitle LIKE \""+contentValues.getAsString("webTitle")+"\"");
                     db.execSQL("UPDATE REC SET pos=pos-1 WHERE pos>"+cursor.getString(3)+";");
                 }
-                cursor = db.rawQuery("SELECT MAX(pos) FROM FAV;",null);
+                cursor = db.rawQuery("SELECT MAX(pos) FROM REC;",null);
 
                 if(cursor.moveToNext()){
                     maxnum = cursor.getInt(0);

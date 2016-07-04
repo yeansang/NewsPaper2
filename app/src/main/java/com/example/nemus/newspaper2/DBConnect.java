@@ -92,9 +92,11 @@ public class DBConnect extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM "+table+" WHERE webTitle LIKE \""+webTitle+"\"",null);
         if(!cursor.moveToNext()){
+            cursor.close();
             return false;
         }else{
             db.execSQL("DELETE FROM "+table+" WHERE webTitle LIKE \""+webTitle+"\";");
+            cursor.close();
             return true;
         }
     }
@@ -112,7 +114,9 @@ public class DBConnect extends SQLiteOpenHelper {
         cursor.moveToNext();
         if(cursor.isNull(0)) return -1;
         db.close();
-        return cursor.getInt(0);
+        int out = cursor.getInt(0);
+        cursor.close();
+        return out;
     }
 
 }
