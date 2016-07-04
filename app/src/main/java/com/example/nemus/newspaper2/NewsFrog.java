@@ -16,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -30,10 +29,10 @@ import java.util.ArrayList;
  */
 public class NewsFrog extends Fragment{
 
-    ListView screen;
-    private ListAdapter adapter=null;
-    JSONArray newsArray =null;
-    ArrayList<String> saveWord = new ArrayList<String>();
+    static ListView screen;
+    private static ArrayAdapter adapter=null;
+    static JSONArray newsArray =null;
+    static ArrayList<String> saveWord = new ArrayList<String>();
 
     private static final Uri REC_URI = Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/rec");
     private static final Uri FAV_URI = Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/fav");
@@ -46,11 +45,8 @@ public class NewsFrog extends Fragment{
         return fragment;
     }
 
-
-    @Override
-    public void onCreate(Bundle savedInstanceState){
-        super.onCreate(savedInstanceState);
-        //뉴스 데이터 불러오기. 뉴스 데이터는 만들어질때 1번만 불러온다.
+    public static void refresh(){
+        Log.d("refresh","ok");
         try {
             newsArray = new GetGuardianNews().execute().get();
 
@@ -68,6 +64,16 @@ public class NewsFrog extends Fragment{
         }else{
             saveWord.add("Fail News read");
         }
+        adapter.notifyDataSetChanged();
+    }
+
+
+    @Override
+    public void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+        //뉴스 데이터 불러오기. 뉴스 데이터는 만들어질때 1번만 불러온다.
+        adapter= new ArrayAdapter<String>(getActivity(), android.R.layout.simple_expandable_list_item_1,saveWord);
+        refresh();
 
     }
 
@@ -77,7 +83,6 @@ public class NewsFrog extends Fragment{
         //초기화
         View rootView = inflater.inflate(R.layout.fragment_news, container, false);
         screen = (ListView) rootView.findViewById(R.id.news_listView);
-        adapter= new ArrayAdapter<String>(getActivity(), android.R.layout.simple_expandable_list_item_1,saveWord);
         screen.setAdapter(adapter);
 
         final JSONArray urlCatch = newsArray;
