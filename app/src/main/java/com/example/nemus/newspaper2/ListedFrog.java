@@ -51,7 +51,7 @@ public class ListedFrog extends Fragment {
         //adapter.clear();
         saveWord.clear();
         //cr = getActivity().getContentResolver();
-        cr.registerContentObserver(DBURI, true, observer);
+
         Cursor wordData = cr.query(DBURI,null,null,null,null);
 
         while(wordData.moveToNext()){
@@ -100,7 +100,6 @@ public class ListedFrog extends Fragment {
 
         refresh();
 
-
         Log.d("tabname", getArguments().getString(ARG_TABNAME));
 
         screen.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -148,5 +147,8 @@ public class ListedFrog extends Fragment {
     }
 
     @Override
-
+    public void onDestroyView(){
+        super.onDestroyView();
+        cr.unregisterContentObserver(observer);
+    }
 }
