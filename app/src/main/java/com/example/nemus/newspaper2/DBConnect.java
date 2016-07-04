@@ -29,9 +29,14 @@ public class DBConnect extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DELETE FROM FAV;");
+        db.execSQL("DELETE FROM REC;");
     }
 
     public void dropTable(){
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DELETE FROM FAV;");
+        db.execSQL("DELETE FROM REC;");
     }
 
     public boolean input(String table, String title,String url, int pos){

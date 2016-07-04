@@ -63,14 +63,40 @@ public class myContentProvider extends ContentProvider {
         SQLiteDatabase db = dbConnect.getWritableDatabase();
         int tableNum = sUriMatcher.match(uri);
         long id =0;
+        Cursor cursor =null;
+        int maxnum = -1;
         switch (tableNum){
             case 0:
+                cursor = db.rawQuery("SELECT * FROM FAV WHERE webTitle LIKE \""+contentValues.getAsString("webTitle")+"\"",null);
+                if(cursor.moveToNext()){
+                    db.execSQL("DELETE FROM FAV WHERE webTitle LIKE \""+contentValues.getAsString("webTitle")+"\"");
+                    db.execSQL("UPDATE FAV SET pos=pos-1 WHERE pos>"+cursor.getString(3)+";");
+                }
+                cursor = db.rawQuery("SELECT MAX(pos) FROM FAV;",null);
+
+                if(cursor.moveToNext()){
+                    maxnum = cursor.getInt(0);
+                }
+                contentValues.put("pos",maxnum+1);
                 id = db.insert("fav",null,contentValues);
                 getContext().getContentResolver().notifyChange(uri,null);
+                cursor.close();
                 return Uri.parse("fav"+"/"+id);
             case 1:
-                id = db.insert("rec",null, contentValues);
+                cursor = db.rawQuery("SELECT * FROM REC WHERE webTitle LIKE \""+contentValues.getAsString("webTitle")+"\"",null);
+                if(cursor.moveToNext()){
+                    db.execSQL("DELETE FROM REC WHERE webTitle LIKE \""+contentValues.getAsString("webTitle")+"\"");
+                    db.execSQL("UPDATE REC SET pos=pos-1 WHERE pos>"+cursor.getString(3)+";");
+                }
+                cursor = db.rawQuery("SELECT MAX(pos) FROM FAV;",null);
+
+                if(cursor.moveToNext()){
+                    maxnum = cursor.getInt(0);
+                }
+                contentValues.put("pos",maxnum+1);
+                id = db.insert("rec",null,contentValues);
                 getContext().getContentResolver().notifyChange(uri,null);
+                cursor.close();
                 return Uri.parse("rec"+"/"+id);
             default:
                 throw new IllegalArgumentException("Unknown URI");

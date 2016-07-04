@@ -32,6 +32,9 @@ public class NewsFrog extends Fragment{
 
     ListView screen;
     private ListAdapter adapter=null;
+    JSONArray newsArray =null;
+    ArrayList<String> saveWord = new ArrayList<String>();
+
     private static final Uri REC_URI = Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/rec");
     private static final Uri FAV_URI = Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/fav");
 
@@ -44,12 +47,37 @@ public class NewsFrog extends Fragment{
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+
+        try {
+            newsArray = new GetGuardianNews().execute().get();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if(newsArray!=null){
+            for(int i=0;i<newsArray.length();i++){
+                try {
+                    saveWord.add(newsArray.getJSONObject(i).getString("webTitle"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }else{
+            saveWord.add("Fail News read");
+        }
+
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_news, container, false);
         //final DBConnect dbConnect = new DBConnect(getActivity(), "news.db",null,1);
         screen = (ListView) rootView.findViewById(R.id.news_listView);
-        ArrayList<String> saveWord = new ArrayList<String>();
+
+        /*ArrayList<String> saveWord = new ArrayList<String>();
         Log.d("tag", "news create");
 
         JSONArray newsArray =null;
@@ -68,7 +96,7 @@ public class NewsFrog extends Fragment{
             }
         }else{
             saveWord.add("Fail News read");
-        }
+        }*/
 
         adapter= new ArrayAdapter<String>(getActivity(), android.R.layout.simple_expandable_list_item_1,saveWord);
         screen.setAdapter(adapter);
@@ -82,10 +110,6 @@ public class NewsFrog extends Fragment{
                 ContentResolver cr = getActivity().getContentResolver();
                 ContentValues cv = new ContentValues();
 
-                Cursor cs = cr.query(REC_URI,new String[]{"MAX(pos)"},null,null,null);
-                cs.moveToNext();
-                int lastNum = cs.getInt(0);
-
                 try {
                     Intent i = new Intent(Intent.ACTION_VIEW);
                     Uri u = Uri.parse(urlCatch.getJSONObject(position).getString("webUrl"));
@@ -98,16 +122,16 @@ public class NewsFrog extends Fragment{
                     }*/
                     cv.put("webTitle",urlCatch.getJSONObject(position).getString("webTitle"));
                     cv.put("webUrl",urlCatch.getJSONObject(position).getString("webUrl"));
-                    cv.put("pos",lastNum+1);
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
                 toast.setGravity(Gravity.CENTER, 0, 0);
                 toast.show();
-                //
+
                 cr.insert(REC_URI,cv);
                 cv.clear();
-                cs.close();
+
                 //Cursor cs = cr.query(REC_URI,null,null,null,null);
 
             }
@@ -128,22 +152,14 @@ public class NewsFrog extends Fragment{
                         //
                         ContentResolver cr = getActivity().getContentResolver();
                         ContentValues cv = new ContentValues();
-
-                        Cursor cs = cr.query(FAV_URI,new String[]{"MAX(pos)"},null,null,null);
-                        cs.moveToNext();
-                        int lastNum = cs.getInt(0);
-
                         try {
                             cv.put("webTitle",urlCatch.getJSONObject(index).getString("webTitle"));
                             cv.put("webUrl",urlCatch.getJSONObject(index).getString("webUrl"));
-                            cv.put("pos",lastNum+1);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
                         cr.insert(FAV_URI,cv);
                         cv.clear();
-                        cs.close();
-
                         return false;
                     }
                 });
@@ -152,7 +168,12 @@ public class NewsFrog extends Fragment{
             }
         });
 
-
         return rootView;
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+
     }
 }

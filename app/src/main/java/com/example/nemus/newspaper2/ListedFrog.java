@@ -48,7 +48,8 @@ public class ListedFrog extends Fragment {
     }
 
     public void refresh(){
-        adapter.clear();
+        //adapter.clear();
+        saveWord.clear();
         //cr = getActivity().getContentResolver();
         cr.registerContentObserver(DBURI, true, observer);
         Cursor wordData = cr.query(DBURI,null,null,null,null);
@@ -59,7 +60,7 @@ public class ListedFrog extends Fragment {
         if(saveWord.size()<=0){
             saveWord.add("Data not found");
         }
-        adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_expandable_list_item_1,saveWord);
+        //adapter.notifyDataSetChanged();
         screen.setAdapter(adapter);
         wordData.close();
     }
@@ -90,28 +91,28 @@ public class ListedFrog extends Fragment {
         View view = inflater.inflate(getArguments().getInt(ARG_LAYOUT), container, false);
         screen = (ListView) view.findViewById(getArguments().getInt(ARG_LISTNAME));
         saveWord = new ArrayList<String>();
-        adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_expandable_list_item_1);
+        adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_expandable_list_item_1,saveWord);
 
         DBURI = Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/"+getArguments().getString(ARG_TABNAME).toLowerCase());
 
         cr = getActivity().getContentResolver();
         cr.registerContentObserver(DBURI, true, observer);
-        final Cursor wordData = cr.query(DBURI,null,null,null,null);
 
         refresh();
+
 
         Log.d("tabname", getArguments().getString(ARG_TABNAME));
 
         screen.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+                Cursor wordData = cr.query(DBURI,null,null,null,null);
                 Intent i = new Intent(Intent.ACTION_VIEW);
                 wordData.moveToPosition(position);
                 Uri u = Uri.parse(wordData.getString(2));
                 i.setData(u);
                 startActivity(i);
-
+                wordData.close();
             }
         });
 
@@ -127,10 +128,13 @@ public class ListedFrog extends Fragment {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
                         if(item.getItemId() == R.id.delete){
+                            Cursor wordData = cr.query(DBURI,null,null,null,null);
                             wordData.moveToPosition(index);
-                            adapter.remove(wordData.getString(2));
                             getActivity().getContentResolver().delete(DBURI,""+(index+1),new String[]{"pos"});
-                            adapter.notifyDataSetChanged();
+                            //adapter.remove(wordData.getString(1));
+                            Log.d("data",wordData.getString(1));
+                            //adapter.notifyDataSetChanged();
+                            wordData.close();
                         }
                         return false;
                     }
@@ -142,4 +146,7 @@ public class ListedFrog extends Fragment {
 
         return view;
     }
+
+    @Override
+
 }
