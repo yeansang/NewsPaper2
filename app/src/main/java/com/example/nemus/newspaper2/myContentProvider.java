@@ -83,15 +83,19 @@ public class myContentProvider extends ContentProvider {
                 cursor.close();
                 return Uri.parse("fav"+"/"+id);
             case 1:
-                cursor = db.rawQuery("SELECT * FROM REC WHERE webTitle LIKE \""+contentValues.getAsString("webTitle")+"\"",null);
+                /*cursor = db.rawQuery("SELECT * FROM REC WHERE webTitle LIKE \""+contentValues.getAsString("webTitle")+"\"",null);
                 if(cursor.moveToNext()){
                     db.execSQL("DELETE FROM REC WHERE webTitle LIKE \""+contentValues.getAsString("webTitle")+"\"");
                     db.execSQL("UPDATE REC SET pos=pos-1 WHERE pos>"+cursor.getString(3)+";");
                 }
+                */
                 cursor = db.rawQuery("SELECT MAX(pos) FROM REC;",null);
-
                 if(cursor.moveToNext()){
                     maxnum = cursor.getInt(0);
+                    if(maxnum>=10){
+                        db.execSQL("UPDATE REC SET pos=pos-1");
+                        db.execSQL("DELETE FROM REC WHERE pos<0;");
+                    }
                 }
                 contentValues.put("pos",maxnum+1);
                 id = db.insert("rec",null,contentValues);

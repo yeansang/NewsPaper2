@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -30,9 +31,10 @@ import java.util.ArrayList;
 public class NewsFrog extends Fragment{
 
     static ListView screen;
-    private static ArrayAdapter adapter=null;
+    private static NewsAdaptor adapter=null;
     static JSONArray newsArray =null;
-    static ArrayList<String> saveWord = new ArrayList<String>();
+    static ArrayList<JSONObject> saveWord = new ArrayList<JSONObject>();
+
 
     private static final Uri REC_URI = Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/rec");
     private static final Uri FAV_URI = Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/fav");
@@ -46,25 +48,22 @@ public class NewsFrog extends Fragment{
     }
 
     public static void refresh(){
-        Log.d("refresh","ok");
         try {
             newsArray = new GetGuardianNews().execute().get();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
         if(newsArray!=null){
             for(int i=0;i<newsArray.length();i++){
                 try {
-                    saveWord.add(newsArray.getJSONObject(i).getString("webTitle"));
+                    saveWord.add(newsArray.getJSONObject(i));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
-        }else{
-            saveWord.add("Fail News read");
         }
         adapter.notifyDataSetChanged();
+        Log.d("refresh","ok");
     }
 
 
@@ -72,7 +71,7 @@ public class NewsFrog extends Fragment{
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         //뉴스 데이터 불러오기. 뉴스 데이터는 만들어질때 1번만 불러온다.
-        adapter= new ArrayAdapter<String>(getActivity(), android.R.layout.simple_expandable_list_item_1,saveWord);
+        adapter= new NewsAdaptor(getActivity(), android.R.layout.simple_expandable_list_item_1,saveWord);
         refresh();
 
     }
@@ -98,14 +97,15 @@ public class NewsFrog extends Fragment{
                 try {
                     //외부 연결부분. 기본 인터넷으로 연결한다.
                     Intent i = new Intent(Intent.ACTION_VIEW);
-                    Uri u = Uri.parse(urlCatch.getJSONObject(position).getString("webUrl"));
+                    JSONObject input = urlCatch.getJSONObject(position);
+                    Uri u = Uri.parse(input.getString("webUrl"));
                     i.setData(u);
                     startActivity(i);
                     //팝업 설정
-                    toast = Toast.makeText(getActivity(),urlCatch.getJSONObject(position).getString("webUrl"), Toast.LENGTH_LONG);
+                    toast = Toast.makeText(getActivity(),input.getString("webUrl"), Toast.LENGTH_LONG);
                     //저장용 데이터
-                    cv.put("webTitle",urlCatch.getJSONObject(position).getString("webTitle"));
-                    cv.put("webUrl",urlCatch.getJSONObject(position).getString("webUrl"));
+                    cv.put("webTitle",input.getString("webTitle"));
+                    cv.put("webUrl",input.getString("webUrl"));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -133,8 +133,9 @@ public class NewsFrog extends Fragment{
                         ContentResolver cr = getActivity().getContentResolver();
                         ContentValues cv = new ContentValues();
                         try {
-                            cv.put("webTitle",urlCatch.getJSONObject(index).getString("webTitle"));
-                            cv.put("webUrl",urlCatch.getJSONObject(index).getString("webUrl"));
+                            JSONObject input = urlCatch.getJSONObject(index);
+                            cv.put("webTitle",input.getString("webTitle"));
+                            cv.put("webUrl",input.getString("webUrl"));
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }

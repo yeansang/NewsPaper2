@@ -16,7 +16,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -26,8 +30,8 @@ import java.util.ArrayList;
 public class ListedFrog extends Fragment {
 
     ListView screen = null;
-    ArrayAdapter<String> adapter;
-    ArrayList<String> saveWord;
+    NewsAdaptor adapter;
+    ArrayList<JSONObject> saveWord;
     ContentResolver cr;
     Uri DBURI=null;
 
@@ -58,12 +62,12 @@ public class ListedFrog extends Fragment {
         //cr = getActivity().getContentResolver();
         //db에서 불러와서 새로 고침
         Cursor wordData = cr.query(DBURI,null,null,null,null);
-
-        while(wordData.moveToNext()){
-            saveWord.add(wordData.getString(1));
-        }
-        if(saveWord.size()<=0){
-            saveWord.add("Data not found");
+        try {
+            while (wordData.moveToNext()) {
+                saveWord.add(new JSONObject("{\"webTitle\":\""+wordData.getString(1)+"\",\"webUrl\":\""+wordData.getString(2)+"\"}"));
+            }
+        }catch (JSONException e){
+            e.printStackTrace();
         }
         screen.setAdapter(adapter);
         wordData.close();
@@ -99,8 +103,8 @@ public class ListedFrog extends Fragment {
         //초기화
         View view = inflater.inflate(getArguments().getInt(ARG_LAYOUT), container, false);
         screen = (ListView) view.findViewById(getArguments().getInt(ARG_LISTNAME));
-        saveWord = new ArrayList<String>();
-        adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_expandable_list_item_1,saveWord);
+        saveWord = new ArrayList<JSONObject>();
+        adapter = new NewsAdaptor(getActivity(),android.R.layout.simple_expandable_list_item_1,saveWord);
 
         DBURI = Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/"+getArguments().getString(ARG_TABNAME).toLowerCase());
 
