@@ -103,17 +103,19 @@ public class NewsFrog extends Fragment{
                     startActivity(i);
                     //팝업 설정
                     toast = Toast.makeText(getActivity(),input.getString("webUrl"), Toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.CENTER, 0, 0);
+                    toast.show();
                     //저장용 데이터
                     cv.put("webTitle",input.getString("webTitle"));
                     cv.put("webUrl",input.getString("webUrl"));
+                    //최근글 db에 집어넣기
+                    cr.insert(REC_URI,cv);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
                 //팝업 보이기
-                toast.setGravity(Gravity.CENTER, 0, 0);
-                toast.show();
-                //최근글 db에 집어넣기
-                cr.insert(REC_URI,cv);
+
+
                 cv.clear();
             }
         });

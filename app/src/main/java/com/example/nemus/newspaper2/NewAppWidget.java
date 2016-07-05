@@ -1,35 +1,44 @@
 package com.example.nemus.newspaper2;
 
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.RemoteViews;
+
+import java.util.ArrayList;
 
 /**
  * Implementation of App Widget functionality.
  */
 public class NewAppWidget extends AppWidgetProvider {
 
+    public static final String TITLE = "com.example.nemus.newspaper2.TITLE";
+    ListView screen = null;
+    ArrayList<String> newsWord;
+    ArrayAdapter<String> adapter;
 
-
-    static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
-                                int appWidgetId) {
-
-        //CharSequence widgetText = context.getString(R.string.appwidget_text);
-        // Construct the RemoteViews object
-        //RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.new_app_widget);
-        //views.setTextViewText(R.id.appwidget_text, widgetText);
-
-        // Instruct the widget manager to update the widget
-        //appWidgetManager.updateAppWidget(appWidgetId, views);
-    }
 
     @Override
-    public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        // There may be multiple widgets active, so update all of them
-        for (int appWidgetId : appWidgetIds) {
-            updateAppWidget(context, appWidgetManager, appWidgetId);
+    public void onUpdate(Context ctxt, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
+
+        for(int appWidgetId:appWidgetIds) {
+            Intent svcIntent = new Intent(ctxt, WidgetService.class);
+
+            svcIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,appWidgetId);
+            svcIntent.setData(Uri.parse(svcIntent.toUri(Intent.URI_INTENT_SCHEME)));
+
+            RemoteViews widget = new RemoteViews(ctxt.getPackageName(), R.layout.new_app_widget);
+            widget.setRemoteAdapter(R.id.words,svcIntent);
+            appWidgetManager.updateAppWidget(appWidgetId, widget);
         }
+
+
+        super.onUpdate(ctxt, appWidgetManager, appWidgetIds);
     }
 
     @Override
