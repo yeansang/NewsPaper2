@@ -16,22 +16,16 @@ import org.json.JSONException;
  */
 public class NewsViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
-    private static JSONArray items;
+    private static final String[] items = new GetGuardianNews().getNewsByStringArray();
+
     private Context context;
     private int appWidgetId;
 
     public NewsViewsFactory(Context context, Intent intent){
-        try {
-            items = new GetGuardianNews().get();
-        }catch(Exception e){
-            try {
-                items.put(0,"{\"webTitle\": \"Data read error\",\"webUrl\":\"http://\"}");
-            } catch (JSONException e1) {
-                e1.printStackTrace();
-                Log.d("epik ","fail");
-            }
-            e.printStackTrace();
-        }
+
+        Log.d("widget","create");
+
+
         this.context = context;
         appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,AppWidgetManager.INVALID_APPWIDGET_ID);
     }
@@ -53,26 +47,28 @@ public class NewsViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     @Override
     public int getCount() {
-        return items.length();
+        return items.length;
     }
 
     @Override
     public RemoteViews getViewAt(int pos) {
         RemoteViews row = new RemoteViews(context.getPackageName(), R.layout.widget_list_row);
-        String title="";
+
+        /*
         try{
             title = items.getJSONObject(pos).getString("webTitle");
         }catch (JSONException e){
             e.printStackTrace();
-        }
-        row.setTextViewText(android.R.id.text1, title);
+        }*/
+        row.setTextViewText(android.R.id.text1, items[pos]);
 
         Intent i = new Intent();
         Bundle extras = new Bundle();
 
-        extras.putString(NewAppWidget.TITLE,title);
+        extras.putString(NewAppWidget.EXTRA_WORD,items[pos]);
         i.putExtras(extras);
         row.setOnClickFillInIntent(android.R.id.text1, i);
+        Log.d("widget","row "+pos);
 
         return row;
     }

@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by nemus on 2016-06-30.
@@ -25,6 +26,19 @@ public class GetGuardianNews extends AsyncTask<Void, Void, JSONArray> {
     public void makeMsg(String msg){
         this.msg = "";
         this.msg += msg;
+    }
+
+    public String[] getNewsByStringArray(){
+        String[] out = new String[25];
+        try {
+            JSONArray jsa = get();
+            for(int i=0;i<jsa.length();i++) {
+                out[i] = jsa.getJSONObject(i).getString("webTitle");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return out;
     }
 
     public String getNews(){

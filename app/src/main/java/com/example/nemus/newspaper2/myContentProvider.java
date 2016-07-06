@@ -20,6 +20,7 @@ public class myContentProvider extends ContentProvider {
     static{
         sUriMatcher.addURI("com.example.nemus.newspaper2.myContentProvider","fav",0);
         sUriMatcher.addURI("com.example.nemus.newspaper2.myContentProvider","rec",1);
+        sUriMatcher.addURI("com.example.nemus.newspaper2.myContentProvider","news",2);
     }
 
     @Override
@@ -40,6 +41,9 @@ public class myContentProvider extends ContentProvider {
                 break;
             case 1:
                 queryBuilder.setTables("rec");
+                break;
+            case 2:
+                queryBuilder.setTables("news");
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI"+ uri);
@@ -102,6 +106,11 @@ public class myContentProvider extends ContentProvider {
                 getContext().getContentResolver().notifyChange(uri,null);
                 cursor.close();
                 return Uri.parse("rec"+"/"+id);
+            case 2:
+                db.execSQL("DELETE FROM NEWS");
+                id = db.insert("rec",null,contentValues);
+                getContext().getContentResolver().notifyChange(uri,null);
+                return Uri.parse("news"+"/"+id);
             default:
                 throw new IllegalArgumentException("Unknown URI");
         }

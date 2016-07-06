@@ -1,11 +1,11 @@
 package com.example.nemus.newspaper2;
 
-import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.RemoteViews;
@@ -17,10 +17,7 @@ import java.util.ArrayList;
  */
 public class NewAppWidget extends AppWidgetProvider {
 
-    public static final String TITLE = "com.example.nemus.newspaper2.TITLE";
-    ListView screen = null;
-    ArrayList<String> newsWord;
-    ArrayAdapter<String> adapter;
+    public static final String EXTRA_WORD = "com.example.nemus.newspaper2.WORD";
 
 
     @Override
@@ -36,6 +33,7 @@ public class NewAppWidget extends AppWidgetProvider {
             widget.setRemoteAdapter(R.id.words,svcIntent);
             appWidgetManager.updateAppWidget(appWidgetId, widget);
         }
+        Log.d("widget","updated");
 
 
         super.onUpdate(ctxt, appWidgetManager, appWidgetIds);
@@ -44,12 +42,14 @@ public class NewAppWidget extends AppWidgetProvider {
     @Override
     public void onEnabled(Context context) {
         // Enter relevant functionality for when the first widget is created
+        super.onEnabled(context);
 
     }
 
     @Override
     public void onDisabled(Context context) {
         // Enter relevant functionality for when the last widget is disabled
+        super.onDisabled(context);
     }
 }
 

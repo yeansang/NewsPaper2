@@ -23,18 +23,21 @@ public class DBConnect extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE NEWS( _ID INTEGER PRIMARY KEY AUTOINCREMENT, webTitle TEXT, webUrl TEXT,pos INTEGER);");
         db.execSQL("CREATE TABLE FAV( _ID INTEGER PRIMARY KEY AUTOINCREMENT, webTitle TEXT, webUrl TEXT,pos INTEGER);");
         db.execSQL("CREATE TABLE REC( _ID INTEGER PRIMARY KEY AUTOINCREMENT, webTitle TEXT, webUrl TEXT,pos INTEGER);");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DELETE FROM NEWS;");
         db.execSQL("DELETE FROM FAV;");
         db.execSQL("DELETE FROM REC;");
     }
 
     public void dropTable(){
         SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DELETE FROM NEWS;");
         db.execSQL("DELETE FROM FAV;");
         db.execSQL("DELETE FROM REC;");
     }
