@@ -33,6 +33,7 @@ public class DBConnect extends SQLiteOpenHelper {
         db.execSQL("DELETE FROM NEWS;");
         db.execSQL("DELETE FROM FAV;");
         db.execSQL("DELETE FROM REC;");
+        onCreate(db);
     }
 
     public void dropTable(){

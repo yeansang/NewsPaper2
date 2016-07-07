@@ -34,10 +34,11 @@ public class NewsFrog extends Fragment{
     private static NewsAdaptor adapter=null;
     static JSONArray newsArray =null;
     static ArrayList<JSONObject> saveWord = new ArrayList<JSONObject>();
-
+    private static ContentResolver cr = null;
 
     private static final Uri REC_URI = Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/rec");
     private static final Uri FAV_URI = Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/fav");
+    private static final Uri NEWS_URI = Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/news");
 
     public NewsFrog() {
     }
@@ -48,6 +49,8 @@ public class NewsFrog extends Fragment{
     }
 
     public static void refresh(){
+        ContentValues cv = new ContentValues();
+        cr.delete(NEWS_URI,null,null);
         try {
             newsArray = new GetGuardianNews().execute().get();
         } catch (Exception e) {
@@ -56,7 +59,12 @@ public class NewsFrog extends Fragment{
         if(newsArray!=null){
             for(int i=0;i<newsArray.length();i++){
                 try {
-                    saveWord.add(newsArray.getJSONObject(i));
+                    JSONObject in = newsArray.getJSONObject(i);
+                    saveWord.add(in);
+                    cv.put("webTitle",in.getString("webTitle"));
+                    cv.put("webUrl",in.getString("webUrl"));
+                    cv.put("pos",i);
+                    cr.insert(NEWS_URI,cv);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -66,10 +74,10 @@ public class NewsFrog extends Fragment{
         Log.d("refresh","ok");
     }
 
-
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+        cr = getActivity().getContentResolver();
         //뉴스 데이터 불러오기. 뉴스 데이터는 만들어질때 1번만 불러온다.
         adapter= new NewsAdaptor(getActivity(), android.R.layout.simple_expandable_list_item_1,saveWord);
         refresh();
@@ -84,6 +92,7 @@ public class NewsFrog extends Fragment{
         screen = (ListView) rootView.findViewById(R.id.news_listView);
         screen.setAdapter(adapter);
 
+
         final JSONArray urlCatch = newsArray;
 
         //짧은 클릭 리스너 설정
@@ -91,7 +100,6 @@ public class NewsFrog extends Fragment{
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Toast toast = null;
-                ContentResolver cr = getActivity().getContentResolver();
                 ContentValues cv = new ContentValues();
 
                 try {
@@ -132,7 +140,6 @@ public class NewsFrog extends Fragment{
                 pop.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        ContentResolver cr = getActivity().getContentResolver();
                         ContentValues cv = new ContentValues();
                         try {
                             JSONObject input = urlCatch.getJSONObject(index);

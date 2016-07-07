@@ -16,80 +16,69 @@ import org.json.JSONException;
  */
 public class NewsViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
-    private static final String[] items = new GetGuardianNews().getNewsByStringArray();
-
-    private Context context;
+    private static String[] items;
+    private Context ctxt=null;
     private int appWidgetId;
 
-    public NewsViewsFactory(Context context, Intent intent){
-
-        Log.d("widget","create");
-
-
-        this.context = context;
-        appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,AppWidgetManager.INVALID_APPWIDGET_ID);
+    public NewsViewsFactory(Context ctxt, Intent intent, String[] items) {
+        this.ctxt=ctxt;
+        appWidgetId=intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
+        this.items = items;
     }
 
     @Override
     public void onCreate() {
-
-    }
-
-    @Override
-    public void onDataSetChanged() {
-
+        // no-op
     }
 
     @Override
     public void onDestroy() {
-
+        // no-op
     }
 
     @Override
     public int getCount() {
-        return items.length;
+        return(items.length);
     }
 
     @Override
-    public RemoteViews getViewAt(int pos) {
-        RemoteViews row = new RemoteViews(context.getPackageName(), R.layout.widget_list_row);
+    public RemoteViews getViewAt(int position) {
+        RemoteViews row=new RemoteViews(ctxt.getPackageName(), R.layout.widget_list_row);
 
-        /*
-        try{
-            title = items.getJSONObject(pos).getString("webTitle");
-        }catch (JSONException e){
-            e.printStackTrace();
-        }*/
-        row.setTextViewText(android.R.id.text1, items[pos]);
+        row.setTextViewText(android.R.id.text1, items[position]);
 
-        Intent i = new Intent();
-        Bundle extras = new Bundle();
+        Intent i=new Intent();
+        Bundle extras=new Bundle();
 
-        extras.putString(NewAppWidget.EXTRA_WORD,items[pos]);
+        extras.putString(NewAppWidget.EXTRA_WORD, items[position]);
         i.putExtras(extras);
         row.setOnClickFillInIntent(android.R.id.text1, i);
-        Log.d("widget","row "+pos);
 
-        return row;
+        return(row);
     }
 
     @Override
     public RemoteViews getLoadingView() {
-        return null;
+        return(null);
     }
 
     @Override
     public int getViewTypeCount() {
-        return 1;
+        return(1);
     }
 
     @Override
-    public long getItemId(int i) {
-        return i;
+    public long getItemId(int position) {
+        return(position);
     }
 
     @Override
     public boolean hasStableIds() {
-        return true;
+        return(true);
+    }
+
+    @Override
+    public void onDataSetChanged() {
+        // no-op
     }
 }

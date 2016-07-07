@@ -6,11 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.RemoteViews;
 
-import java.util.ArrayList;
 
 /**
  * Implementation of App Widget functionality.
@@ -23,15 +20,17 @@ public class NewAppWidget extends AppWidgetProvider {
     @Override
     public void onUpdate(Context ctxt, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
 
-        for(int appWidgetId:appWidgetIds) {
-            Intent svcIntent = new Intent(ctxt, WidgetService.class);
+        for(int i=0; i<appWidgetIds.length; i++) {
+            Log.d("widget", "update");
+            Intent svcIntent = new Intent(ctxt, com.example.nemus.newspaper2.WidgetService.class);
 
-            svcIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,appWidgetId);
+            svcIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,appWidgetIds[i]);
             svcIntent.setData(Uri.parse(svcIntent.toUri(Intent.URI_INTENT_SCHEME)));
 
             RemoteViews widget = new RemoteViews(ctxt.getPackageName(), R.layout.new_app_widget);
+
             widget.setRemoteAdapter(R.id.words,svcIntent);
-            appWidgetManager.updateAppWidget(appWidgetId, widget);
+            appWidgetManager.updateAppWidget(appWidgetIds[i], widget);
         }
         Log.d("widget","updated");
 
@@ -43,7 +42,6 @@ public class NewAppWidget extends AppWidgetProvider {
     public void onEnabled(Context context) {
         // Enter relevant functionality for when the first widget is created
         super.onEnabled(context);
-
     }
 
     @Override

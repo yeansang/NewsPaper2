@@ -51,6 +51,7 @@ public class myContentProvider extends ContentProvider {
 
         SQLiteDatabase db = dbConnect.getWritableDatabase();
         Cursor cursor = queryBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
+
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
         return cursor;
     }
@@ -107,8 +108,9 @@ public class myContentProvider extends ContentProvider {
                 cursor.close();
                 return Uri.parse("rec"+"/"+id);
             case 2:
-                db.execSQL("DELETE FROM NEWS");
-                id = db.insert("rec",null,contentValues);
+                //db.execSQL("DELETE FROM NEWS");
+                id = db.insert("news",null,contentValues);
+                Log.d("dbt",contentValues.getAsString("webTitle"));
                 getContext().getContentResolver().notifyChange(uri,null);
                 return Uri.parse("news"+"/"+id);
             default:
@@ -142,6 +144,10 @@ public class myContentProvider extends ContentProvider {
                     db.execSQL("UPDATE REC SET pos=pos-1 WHERE pos>"+cr.getString(3)+";");
                     break;
                 }
+            case 2:
+                cr=db.rawQuery("SELECT * FROM REC",null);
+                db.execSQL("DELETE FROM NEWS;");
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
