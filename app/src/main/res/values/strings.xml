@@ -4,4 +4,7 @@
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
+    <string name="news_button">News</string>
+    <string name="fav_button">Favorite</string>
+    <string name="rec_button">Recent</string>
 </resources>

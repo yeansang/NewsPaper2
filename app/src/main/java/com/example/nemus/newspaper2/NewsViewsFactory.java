@@ -1,8 +1,11 @@
 package com.example.nemus.newspaper2;
 
 import android.appwidget.AppWidgetManager;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -16,7 +19,9 @@ import org.json.JSONException;
  */
 public class NewsViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
+    private static final String NEWS_URI = "content://com.example.nemus.newspaper2.myContentProvider/news";
     private static String[] items;
+    private static String[] url;
     private Context ctxt=null;
     private int appWidgetId;
 
@@ -38,7 +43,7 @@ public class NewsViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     @Override
     public int getCount() {
-        return(items.length);
+        return(items.length-1);
     }
 
     @Override
@@ -79,6 +84,23 @@ public class NewsViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     @Override
     public void onDataSetChanged() {
-        // no-op
+        ContentResolver cr = ctxt.getContentResolver();
+        Cursor newsData = cr.query(Uri.parse(NEWS_URI),null,null,null,null);
+        //addNewsToDB();
+        if(newsData.moveToNext()) {
+            items = new String[10];
+            url = new String[10];
+            int i = 0;
+            while (newsData.moveToNext()){
+                items[i] = newsData.getString(1);
+                url[i++] = newsData.getString(2);
+                if(i>10){
+                    break;
+                }
+            }
+        }else{
+            items = new String[]{"No Data"};
+        }
+        newsData.close();
     }
 }
