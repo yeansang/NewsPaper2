@@ -30,10 +30,7 @@ public class DBConnect extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DELETE FROM NEWS;");
-        db.execSQL("DELETE FROM FAV;");
-        db.execSQL("DELETE FROM REC;");
-        onCreate(db);
+        db.execSQL("CREATE TABLE NEWS( _ID INTEGER PRIMARY KEY AUTOINCREMENT, webTitle TEXT, webUrl TEXT,pos INTEGER);");
     }
 
     public void dropTable(){

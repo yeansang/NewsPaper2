@@ -25,7 +25,7 @@ public class myContentProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        dbConnect = new DBConnect(getContext(), "news.db",null,1);
+        dbConnect = new DBConnect(getContext(), "news.db",null,2);
         return false;
     }
 
