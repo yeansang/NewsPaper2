@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.PopupMenu;
 import android.util.Log;
@@ -34,6 +35,15 @@ public class NewsFrog extends Fragment{
     static ArrayList<JSONObject> saveWord = new ArrayList<JSONObject>();
     private static ContentResolver cr = null;
 
+    static Handler handler = new Handler();
+    static Runnable timedTask = new Runnable(){
+        @Override
+        public void run() {
+            refresh();
+            handler.postDelayed(timedTask, 60000);
+            Log.d("refresh","time refreshed");
+        }};
+
     private static final Uri REC_URI = Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/rec");
     private static final Uri FAV_URI = Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/fav");
     private static final Uri NEWS_URI = Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/news");
@@ -49,6 +59,8 @@ public class NewsFrog extends Fragment{
     public static void refresh(){
         ContentValues cv = new ContentValues();
         cr.delete(NEWS_URI,null,null);
+        adapter.clear();
+        saveWord.clear();
         try {
             newsArray = new GetGuardianNews().execute().get();
         } catch (Exception e) {
@@ -78,7 +90,8 @@ public class NewsFrog extends Fragment{
         cr = getActivity().getContentResolver();
         //뉴스 데이터 불러오기. 뉴스 데이터는 만들어질때 1번만 불러온다.
         adapter= new NewsAdaptor(getActivity(), android.R.layout.simple_expandable_list_item_1,saveWord);
-        refresh();
+        //refresh();
+        handler.post(timedTask);
 
     }
 
@@ -93,6 +106,8 @@ public class NewsFrog extends Fragment{
         screen.setEmptyView(MainActivity.emptyView);
 
         final JSONArray urlCatch = newsArray;
+
+        screen.setEmptyView(rootView.findViewById(R.id.empty));
 
         //짧은 클릭 리스너 설정
         screen.setOnItemClickListener(new AdapterView.OnItemClickListener() {

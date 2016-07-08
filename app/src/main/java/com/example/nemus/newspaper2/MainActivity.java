@@ -1,6 +1,7 @@
 package com.example.nemus.newspaper2;
 
 import android.support.design.widget.TabLayout;
+import android.support.v4.view.NestedScrollingChild;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
@@ -68,7 +69,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
                 if(menuItem.getItemId() == R.id.action_settings) {
-                    NewsFrog.refresh();
+                    NewsFrog.handler.removeCallbacks(NewsFrog.timedTask);
+                    NewsFrog.handler.post(NewsFrog.timedTask);
+                    //NewsFrog.refresh();
                 }
                 return true;
             }
