@@ -26,7 +26,8 @@
         <!-- suppress AndroidDomInspection -->
         <provider
             android:name=".myContentProvider"
-            android:authorities="com.example.nemus.newspaper2.myContentProvider" />
+            android:authorities="com.example.nemus.newspaper2.myContentProvider"
+            android:exported="true"/>
 
         <receiver
             android:name="com.example.nemus.newspaper2.NewAppWidget"

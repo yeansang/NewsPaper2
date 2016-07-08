@@ -4,16 +4,15 @@ import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
-import android.view.Gravity;
-import android.widget.ImageView;
 import android.widget.RemoteViews;
-import android.widget.Toast;
 
 
 /**
@@ -29,6 +28,7 @@ public class NewAppWidget extends AppWidgetProvider {
 
     private static HandlerThread sWorkerThread;
     private static Handler sWorkerQueue;
+    private static final Uri WIDGET_URI = Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/widget");
 
     public NewAppWidget() {
         sWorkerThread = new HandlerThread("WeatherWidgetProvider-worker");
@@ -41,31 +41,47 @@ public class NewAppWidget extends AppWidgetProvider {
         final String action = intent.getAction();
         final Context c = ctx;
         Log.d("widget", action);
-        if (ACTION_NEWS.equals(action)) {
+
+        final AppWidgetManager mgr = AppWidgetManager.getInstance(c);
+        final ComponentName cn = new ComponentName(c, NewAppWidget.class);
+
+        if (NewAppWidget.ACTION_NEWS.equals(action)) {
             sWorkerQueue.removeMessages(0);
             sWorkerQueue.post(new Runnable() {
                 @Override
                 public void run() {
                     Log.d("widget","news click");
-                    final AppWidgetManager mgr = AppWidgetManager.getInstance(c);
-                    final ComponentName cn = new ComponentName(c, NewAppWidget.class);
+                    ContentResolver cr = c.getContentResolver();
+                    ContentValues status =new ContentValues();
+                    status.put("widgetStatus","news");
+                    cr.insert(WIDGET_URI, status);
                     mgr.notifyAppWidgetViewDataChanged(mgr.getAppWidgetIds(cn), R.id.words);
                 }
             });
-        }else if(ACTION_FAV.equals(action)){
+        }else if(NewAppWidget.ACTION_FAV.equals(action)){
             sWorkerQueue.removeMessages(0);
             sWorkerQueue.post(new Runnable() {
                 @Override
                 public void run() {
                     Log.d("widget","fav click");
+                    ContentResolver cr = c.getContentResolver();
+                    ContentValues status =new ContentValues();
+                    status.put("widgetStatus","fav");
+                    cr.insert(WIDGET_URI, status);
+                    mgr.notifyAppWidgetViewDataChanged(mgr.getAppWidgetIds(cn), R.id.words);
                 }
             });
-        }else if(ACTION_REC.equals(action)){
+        }else if(NewAppWidget.ACTION_REC.equals(action)){
             sWorkerQueue.removeMessages(0);
             sWorkerQueue.post(new Runnable() {
                 @Override
                 public void run() {
                     Log.d("widget","rec click");
+                    ContentResolver cr = c.getContentResolver();
+                    ContentValues status =new ContentValues();
+                    status.put("widgetStatus","rec");
+                    cr.insert(WIDGET_URI, status);
+                    mgr.notifyAppWidgetViewDataChanged(mgr.getAppWidgetIds(cn), R.id.words);
                 }
             });
         }

@@ -21,7 +21,9 @@ public class myContentProvider extends ContentProvider {
         sUriMatcher.addURI("com.example.nemus.newspaper2.myContentProvider","fav",0);
         sUriMatcher.addURI("com.example.nemus.newspaper2.myContentProvider","rec",1);
         sUriMatcher.addURI("com.example.nemus.newspaper2.myContentProvider","news",2);
+        sUriMatcher.addURI("com.example.nemus.newspaper2.myContentProvider","widget",3);
     }
+    private String forWidget = "news";
 
     @Override
     public boolean onCreate() {
@@ -45,12 +47,16 @@ public class myContentProvider extends ContentProvider {
             case 2:
                 queryBuilder.setTables("news");
                 break;
+            case 3:
+                queryBuilder.setTables(forWidget);
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI"+ uri);
         }
 
         SQLiteDatabase db = dbConnect.getWritableDatabase();
         Cursor cursor = queryBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
+
 
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
         return cursor;
@@ -110,9 +116,11 @@ public class myContentProvider extends ContentProvider {
             case 2:
                 //db.execSQL("DELETE FROM NEWS");
                 id = db.insert("news",null,contentValues);
-                Log.d("dbt",contentValues.getAsString("webTitle"));
                 getContext().getContentResolver().notifyChange(uri,null);
                 return Uri.parse("news"+"/"+id);
+            case 3:
+                forWidget = contentValues.getAsString("widgetStatus");
+                return Uri.parse("widget"+"/"+id);
             default:
                 throw new IllegalArgumentException("Unknown URI");
         }

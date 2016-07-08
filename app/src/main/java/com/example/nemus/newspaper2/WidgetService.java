@@ -7,6 +7,8 @@ import android.net.Uri;
 import android.util.Log;
 import android.widget.RemoteViewsService;
 
+import java.util.ArrayList;
+
 /**
  * Created by nemus on 2016-07-05.
  */
@@ -21,25 +23,24 @@ public class WidgetService extends RemoteViewsService {
         ContentResolver cr = getContentResolver();
         Cursor newsData = cr.query(Uri.parse(NEWS_URI),null,null,null,null);
         //addNewsToDB();
-        String[] items;
-        String[] urls;
+        ArrayList<String> items=new ArrayList<String>();
+        ArrayList<String> urls=new ArrayList<String>();
+
         if(newsData.moveToNext()) {
-            items = new String[10];
-            urls = new String[10];
             int i = 0;
             while (newsData.moveToNext()){
-                items[i] = newsData.getString(1);
-                urls[i++] = newsData.getString(2);
+                items.add(i,newsData.getString(1));
+                urls.add(i++,newsData.getString(2));
                 if(i>10){
                     break;
                 }
             }
         }else{
-            items = new String[]{"No Data"};
+            items.add(0,"No data");
         }
         newsData.close();
         Log.d("widget","call");
-        NewsViewsFactory out = new NewsViewsFactory(this.getApplicationContext(), intent, items);
+        NewsViewsFactory out = new NewsViewsFactory(this.getApplicationContext(), intent, items, urls);
         Log.d("widget",out.toString());
         return out;
     }

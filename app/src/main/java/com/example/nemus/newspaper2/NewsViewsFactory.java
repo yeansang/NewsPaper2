@@ -14,26 +14,32 @@ import android.widget.RemoteViewsService;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.util.ArrayList;
+
 /**
  * Created by nemus on 2016-07-05.
  */
 public class NewsViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
-    private static final String NEWS_URI = "content://com.example.nemus.newspaper2.myContentProvider/news";
-    private static String[] items;
-    private static String[] url;
+    private static final String WIDGET_URI = "content://com.example.nemus.newspaper2.myContentProvider/widget";
+    private static ArrayList<String> items;
+    private static ArrayList<String> url;
     private Context ctxt=null;
     private int appWidgetId;
+    private  Intent intent;
 
-    public NewsViewsFactory(Context ctxt, Intent intent, String[] items) {
+    public NewsViewsFactory(Context ctxt, Intent intent, ArrayList<String> items,ArrayList<String> url) {
+        this.intent = intent;
         this.ctxt=ctxt;
         appWidgetId=intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
         this.items = items;
+        this.url = url;
     }
 
     @Override
     public void onCreate() {
-        // no-op
+
+
     }
 
     @Override
@@ -43,19 +49,19 @@ public class NewsViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     @Override
     public int getCount() {
-        return(items.length-1);
+        return(items.size());
     }
 
     @Override
     public RemoteViews getViewAt(int position) {
         RemoteViews row=new RemoteViews(ctxt.getPackageName(), R.layout.widget_list_row);
 
-        row.setTextViewText(android.R.id.text1, items[position]);
+        row.setTextViewText(android.R.id.text1, items.get(position));
 
         Intent i=new Intent();
         Bundle extras=new Bundle();
 
-        extras.putString(NewAppWidget.EXTRA_WORD, items[position]);
+        extras.putString(NewAppWidget.EXTRA_WORD, items.get(position));
         i.putExtras(extras);
         row.setOnClickFillInIntent(android.R.id.text1, i);
 
@@ -84,22 +90,24 @@ public class NewsViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     @Override
     public void onDataSetChanged() {
+        //ctxt.grantUriPermission("com.example.nemus.newspaper2",Uri.parse(WIDGET_URI),Intent.FLAG_GRANT_READ_URI_PERMISSION);
         ContentResolver cr = ctxt.getContentResolver();
-        Cursor newsData = cr.query(Uri.parse(NEWS_URI),null,null,null,null);
+        Cursor newsData = cr.query(Uri.parse(WIDGET_URI),null,null,null,null);
         //addNewsToDB();
+        items.clear();
+        url.clear();
         if(newsData.moveToNext()) {
-            items = new String[10];
-            url = new String[10];
-            int i = 0;
-            while (newsData.moveToNext()){
-                items[i] = newsData.getString(1);
-                url[i++] = newsData.getString(2);
-                if(i>10){
+            int i = 1;
+            do {
+                items.add(newsData.getString(1));
+                url.add(newsData.getString(2));
+                i++;
+                if (i > 10) {
                     break;
                 }
-            }
+            } while (newsData.moveToNext());
         }else{
-            items = new String[]{"No Data"};
+            items.add(0,"No data");
         }
         newsData.close();
     }
