@@ -90,6 +90,7 @@ public class NewsFrog extends Fragment{
         screen = (ListView) rootView.findViewById(R.id.news_listView);
         screen.setAdapter(adapter);
 
+        screen.setEmptyView(MainActivity.emptyView);
 
         final JSONArray urlCatch = newsArray;
 

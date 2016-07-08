@@ -8,3 +8,4 @@
     tools:context="com.example.nemus.newspaper2.NewsFrog"
     android:id="@+id/news_listView" />
 
+

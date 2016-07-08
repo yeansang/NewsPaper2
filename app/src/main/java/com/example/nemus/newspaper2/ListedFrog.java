@@ -114,6 +114,7 @@ public class ListedFrog extends Fragment {
         refresh();
 
         Log.d("tabname", getArguments().getString(ARG_TABNAME));
+        screen.setEmptyView(view.findViewById(R.id.empty));
 
         //짧은 터치 리스너 설정
         screen.setOnItemClickListener(new AdapterView.OnItemClickListener() {
