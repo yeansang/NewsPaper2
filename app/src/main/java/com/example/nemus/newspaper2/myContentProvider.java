@@ -14,7 +14,7 @@ import android.util.Log;
  * Created by nemus on 2016-06-30.
  */
 public class myContentProvider extends ContentProvider {
-    DBConnect dbConnect;
+    private DBConnect dbConnect;
 
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     static{

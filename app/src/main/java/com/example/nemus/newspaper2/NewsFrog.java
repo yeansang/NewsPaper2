@@ -32,36 +32,36 @@ import java.util.ArrayList;
  */
 public class NewsFrog extends Fragment{
 
-    static ListView screen;
-    private static NewsAdaptor adapter=null;
-    static JSONArray newsArray =null;
-    static ArrayList<JSONObject> saveWord = new ArrayList<JSONObject>();
-    private static ContentResolver cr = null;
-    public static boolean manualRefresh = false;
+    private ListView screen;
+    private NewsAdaptor adapter=null;
+    private JSONArray newsArray =null;
+    private ArrayList<JSONObject> saveWord = new ArrayList<JSONObject>();
+    private ContentResolver cr = null;
+    private boolean manualRefresh = false;
 
-    private static SharedPreferences sharedPreferences;
+    private SharedPreferences sharedPreferences;
 
-    static Handler handler = new Handler();
-    static Runnable timedTask = new Runnable(){
+    private Handler handler = new Handler();
+    private Runnable timedTask = new Runnable(){
         @Override
         public void run() {
-            handler.postDelayed(timedTask, delaySec*1000);
+            handler.postDelayed(timedTask, delayMillSec);
 
-            if(manualRefresh||(time+(delaySec*1000) < System.currentTimeMillis())) {
+            if(manualRefresh||(time+delayMillSec < System.currentTimeMillis())) {
                 refresh();
                 Log.d("refresh","time refreshed");
                 manualRefresh = false;
             }
+
             Log.d("refreshTime", time+"");
         }};
 
+    private long time = 0;
+    private final long delayMillSec = 60*1000;
 
-    private static long time = 0;
-    private static int delaySec = 60;
-
-    private static final Uri REC_URI = Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/rec");
-    private static final Uri FAV_URI = Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/fav");
-    private static final Uri NEWS_URI = Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/news");
+    private final Uri REC_URI = Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/rec");
+    private final Uri FAV_URI = Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/fav");
+    private final Uri NEWS_URI = Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/news");
 
     public NewsFrog() {
     }
@@ -71,7 +71,7 @@ public class NewsFrog extends Fragment{
         return fragment;
     }
 
-    public static void listRefresh(){
+    public void listRefresh(){
         adapter.clear();
         saveWord.clear();
         //cr = getActivity().getContentResolver();
@@ -86,16 +86,21 @@ public class NewsFrog extends Fragment{
             e.printStackTrace();
         }
         screen.setAdapter(adapter);
-
     }
 
-    public static void refresh(){
+    public void manualPost(){
+        handler.removeCallbacks(timedTask);
+        manualRefresh = true;
+        handler.post(timedTask);
+        Toast.makeText(getActivity(),"Refreshed",Toast.LENGTH_SHORT).show();
+    }
+
+    public void refresh(){
         ContentValues cv = new ContentValues();
-
         SharedPreferences.Editor editor = sharedPreferences.edit();
-
         cr.delete(NEWS_URI,null,null);
         try {
+            //newsArray = new JSONArray();
             newsArray = new GetGuardianNews().execute().get();
         } catch (Exception e) {
             e.printStackTrace();
@@ -116,7 +121,7 @@ public class NewsFrog extends Fragment{
 
         editor.putLong("PREFERENCE_TIME",System.currentTimeMillis());
         editor.apply();
-        editor.clear();
+
         listRefresh();
         Log.d("refresh","ok");
     }
@@ -125,18 +130,16 @@ public class NewsFrog extends Fragment{
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         cr = getActivity().getContentResolver();
+
         sharedPreferences = getActivity().getSharedPreferences(getString(R.string.preference_file_key),Context.MODE_PRIVATE);
-        long defaulttime = 10000;
-        time = sharedPreferences.getLong(getString(R.string.preference_time),defaulttime);
+        time = sharedPreferences.getLong(getString(R.string.preference_time),0);
         //뉴스 데이터 불러오기. 뉴스 데이터는 만들어질때 1번만 불러온다.
         adapter= new NewsAdaptor(getActivity(), android.R.layout.simple_expandable_list_item_1,saveWord);
         handler.post(timedTask);
-
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         //초기화
         View rootView = inflater.inflate(R.layout.fragment_news, container, false);
         screen = (ListView) rootView.findViewById(R.id.news_listView);

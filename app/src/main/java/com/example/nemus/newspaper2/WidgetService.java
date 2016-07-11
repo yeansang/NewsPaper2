@@ -16,8 +16,6 @@ public class WidgetService extends RemoteViewsService {
 
     private static final String NEWS_URI = "content://com.example.nemus.newspaper2.myContentProvider/news";
 
-
-
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent){
         ContentResolver cr = getContentResolver();

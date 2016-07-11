@@ -1,9 +1,7 @@
 package com.example.nemus.newspaper2;
 
 import android.support.design.widget.TabLayout;
-import android.support.v4.view.NestedScrollingChild;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 
 import android.support.v4.app.Fragment;
@@ -11,13 +9,10 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.TextView;
-
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,12 +31,14 @@ public class MainActivity extends AppCompatActivity {
      */
     private ViewPager mViewPager;
     public static TextView emptyView;
+    private NewsFrog newsFrog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        newsFrog = NewsFrog.newInstance();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -69,9 +66,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
                 if(menuItem.getItemId() == R.id.action_settings) {
-                    NewsFrog.handler.removeCallbacks(NewsFrog.timedTask);
-                    NewsFrog.manualRefresh = true;
-                    NewsFrog.handler.post(NewsFrog.timedTask);
+                    newsFrog.manualPost();
                 }
                 return true;
             }
@@ -113,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
             // Return a PlaceholderFragment (defined as a static inner class below).
             switch(position){
                 case 0:
-                    return NewsFrog.newInstance();//뉴스 페이지 보여주기
+                    return newsFrog;//뉴스 페이지 보여주기
                 case 1:
                     return ListedFrog.newInstance(R.layout.fragment_fav, R.id.fav_listView,"fav");//즐겨찾기 보여주기
                 case 2:

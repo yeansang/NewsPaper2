@@ -27,11 +27,11 @@ import java.util.ArrayList;
  */
 public class ListedFrog extends Fragment {
 
-    ListView screen = null;
-    NewsAdaptor adapter;
-    ArrayList<JSONObject> saveWord;
-    ContentResolver cr;
-    Uri DBURI=null;
+    private ListView screen = null;
+    private NewsAdaptor adapter;
+    private ArrayList<JSONObject> saveWord;
+    private ContentResolver cr;
+    private Uri DBURI=null;
 
     private static final String ARG_LAYOUT = "arg_layout";
     private static final String ARG_TABNAME = "tab_name";

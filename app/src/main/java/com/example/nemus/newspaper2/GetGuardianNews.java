@@ -1,6 +1,7 @@
 package com.example.nemus.newspaper2;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -12,20 +13,18 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Created by nemus on 2016-06-30.
  */
 public class GetGuardianNews extends AsyncTask<Void, Void, JSONArray> {
 
-    final String apiKey = "&api-key=7ef3d39f-2a09-483a-876d-6d9f39720195";
-    String url = "http://content.guardianapis.com/search?";
-    String msg = "q=debate&order-by=newest";
+    private final String apiKey = "&api-key=7ef3d39f-2a09-483a-876d-6d9f39720195";
+    private final String url = "http://content.guardianapis.com/search?";
+    private String msg = "q=debate&order-by=newest";
 
     public void makeMsg(String msg){
-        this.msg = "";
-        this.msg += msg;
+        this.msg = msg;
     }
 
     public String[] getNewsByStringArray(){
@@ -69,36 +68,40 @@ public class GetGuardianNews extends AsyncTask<Void, Void, JSONArray> {
     @Override
     protected JSONArray doInBackground(Void... params) {
         try {
-            URL address = new URL(url+msg+apiKey);
-            HttpURLConnection conn = (HttpURLConnection) address.openConnection();
 
-            conn.setConnectTimeout(10000);
+                URL address = new URL(url + msg + apiKey);
+                HttpURLConnection conn = (HttpURLConnection) address.openConnection();
 
-            int rescode = conn.getResponseCode();
+                conn.setConnectTimeout(10000);
 
-            if(rescode == HttpURLConnection.HTTP_OK) {
-                InputStream in = conn.getInputStream();
-                InputStreamReader inReader = new InputStreamReader(in);
-                BufferedReader bufreader = new BufferedReader(new InputStreamReader(in,"utf-8"));
-                String recive="";
-                String save="";
-                while((recive = bufreader.readLine())!=null) {
-                    save += recive;
+                int rescode = conn.getResponseCode();
+
+                if (rescode == HttpURLConnection.HTTP_OK) {
+                    InputStream in = conn.getInputStream();
+                    InputStreamReader inReader = new InputStreamReader(in);
+                    BufferedReader bufreader = new BufferedReader(new InputStreamReader(in, "utf-8"));
+                    String recive = "";
+                    String save = "";
+                    while ((recive = bufreader.readLine()) != null) {
+                        save += recive;
+                        //Log.d("recive",recive);
+                    }
+                    Log.d("save", save);
+
+                    JSONArray ja = null;
+
+                    try {
+                        JSONObject js = new JSONObject(save);
+                        ja = js.getJSONObject("response").getJSONArray("results");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    return ja;
+                } else {
+                    return null;
                 }
 
-                JSONArray ja = null;
-
-                try {
-                    JSONObject js = new JSONObject(save);
-                    ja = js.getJSONObject("response").getJSONArray("results");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                return ja;
-            }else{
-                return null;
-            }
         } catch (IOException e) {
             e.printStackTrace();
         }
