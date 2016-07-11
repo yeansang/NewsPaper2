@@ -70,8 +70,8 @@ public class MainActivity extends AppCompatActivity {
             public boolean onMenuItemClick(MenuItem menuItem) {
                 if(menuItem.getItemId() == R.id.action_settings) {
                     NewsFrog.handler.removeCallbacks(NewsFrog.timedTask);
+                    NewsFrog.manualRefresh = true;
                     NewsFrog.handler.post(NewsFrog.timedTask);
-                    //NewsFrog.refresh();
                 }
                 return true;
             }

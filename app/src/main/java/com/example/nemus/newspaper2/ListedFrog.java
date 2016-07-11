@@ -55,7 +55,7 @@ public class ListedFrog extends Fragment {
 
     //
     public void refresh(){
-        //adapter.clear();
+        adapter.clear();
         saveWord.clear();
         //cr = getActivity().getContentResolver();
         //db에서 불러와서 새로 고침

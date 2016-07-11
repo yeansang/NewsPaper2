@@ -2,7 +2,10 @@ package com.example.nemus.newspaper2;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -34,15 +37,27 @@ public class NewsFrog extends Fragment{
     static JSONArray newsArray =null;
     static ArrayList<JSONObject> saveWord = new ArrayList<JSONObject>();
     private static ContentResolver cr = null;
+    public static boolean manualRefresh = false;
+
+    private static SharedPreferences sharedPreferences;
 
     static Handler handler = new Handler();
     static Runnable timedTask = new Runnable(){
         @Override
         public void run() {
-            refresh();
-            handler.postDelayed(timedTask, 60000);
-            Log.d("refresh","time refreshed");
+            handler.postDelayed(timedTask, delaySec*1000);
+
+            if(manualRefresh||(time+(delaySec*1000) < System.currentTimeMillis())) {
+                refresh();
+                Log.d("refresh","time refreshed");
+                manualRefresh = false;
+            }
+            Log.d("refreshTime", time+"");
         }};
+
+
+    private static long time = 0;
+    private static int delaySec = 60;
 
     private static final Uri REC_URI = Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/rec");
     private static final Uri FAV_URI = Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/fav");
@@ -56,11 +71,30 @@ public class NewsFrog extends Fragment{
         return fragment;
     }
 
-    public static void refresh(){
-        ContentValues cv = new ContentValues();
-        cr.delete(NEWS_URI,null,null);
+    public static void listRefresh(){
         adapter.clear();
         saveWord.clear();
+        //cr = getActivity().getContentResolver();
+        //db에서 불러와서 새로 고침
+        Cursor wordData = cr.query(NEWS_URI,null,null,null,null);
+        try {
+            while (wordData.moveToNext()) {
+                saveWord.add(new JSONObject("{\"webTitle\":\""+wordData.getString(1)+"\",\"webUrl\":\""+wordData.getString(2)+"\"}"));
+            }
+            wordData.close();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        screen.setAdapter(adapter);
+
+    }
+
+    public static void refresh(){
+        ContentValues cv = new ContentValues();
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        cr.delete(NEWS_URI,null,null);
         try {
             newsArray = new GetGuardianNews().execute().get();
         } catch (Exception e) {
@@ -70,7 +104,6 @@ public class NewsFrog extends Fragment{
             for(int i=0;i<newsArray.length();i++){
                 try {
                     JSONObject in = newsArray.getJSONObject(i);
-                    saveWord.add(in);
                     cv.put("webTitle",in.getString("webTitle"));
                     cv.put("webUrl",in.getString("webUrl"));
                     cv.put("pos",i);
@@ -80,7 +113,11 @@ public class NewsFrog extends Fragment{
                 }
             }
         }
-        adapter.notifyDataSetChanged();
+
+        editor.putLong("PREFERENCE_TIME",System.currentTimeMillis());
+        editor.apply();
+        editor.clear();
+        listRefresh();
         Log.d("refresh","ok");
     }
 
@@ -88,9 +125,11 @@ public class NewsFrog extends Fragment{
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         cr = getActivity().getContentResolver();
+        sharedPreferences = getActivity().getSharedPreferences(getString(R.string.preference_file_key),Context.MODE_PRIVATE);
+        long defaulttime = 10000;
+        time = sharedPreferences.getLong(getString(R.string.preference_time),defaulttime);
         //뉴스 데이터 불러오기. 뉴스 데이터는 만들어질때 1번만 불러온다.
         adapter= new NewsAdaptor(getActivity(), android.R.layout.simple_expandable_list_item_1,saveWord);
-        //refresh();
         handler.post(timedTask);
 
     }
@@ -109,6 +148,7 @@ public class NewsFrog extends Fragment{
 
         screen.setEmptyView(rootView.findViewById(R.id.empty));
 
+        listRefresh();
         //짧은 클릭 리스너 설정
         screen.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -119,7 +159,7 @@ public class NewsFrog extends Fragment{
                 try {
                     //외부 연결부분. 기본 인터넷으로 연결한다.
                     Intent i = new Intent(Intent.ACTION_VIEW);
-                    JSONObject input = urlCatch.getJSONObject(position);
+                    JSONObject input = adapter.getItem(position);
                     Uri u = Uri.parse(input.getString("webUrl"));
                     i.setData(u);
                     startActivity(i);
@@ -132,12 +172,9 @@ public class NewsFrog extends Fragment{
                     cv.put("webUrl",input.getString("webUrl"));
                     //최근글 db에 집어넣기
                     cr.insert(REC_URI,cv);
-                } catch (JSONException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
-                //팝업 보이기
-
-
                 cv.clear();
             }
         });
