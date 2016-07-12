@@ -1,17 +1,21 @@
 package com.example.nemus.newspaper2;
 
+import android.content.ClipData;
+import android.content.ClipDescription;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.PopupMenu;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -186,7 +190,52 @@ public class NewsFrog extends Fragment{
         screen.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
+                ClipData.Item item = new ClipData.Item((CharSequence) view.getTag());
+                Log.d("drag", view.toString());
+                ClipData data = new ClipData((CharSequence)view.getTag(), new String[]{ClipDescription.MIMETYPE_TEXT_PLAIN}, item);
+                View.DragShadowBuilder shadow = new View.DragShadowBuilder(view);
+                final int index = position;
+
+                view.startDrag(data,shadow,view,0);
+                view.setOnDragListener(new View.OnDragListener() {
+                    @Override
+                    public boolean onDrag(View view, DragEvent dragEvent) {
+                        Log.d("drag id", view.getId()+"");
+                        switch(dragEvent.getAction()){
+                            case DragEvent.ACTION_DROP:
+                            if (view.equals(getActivity().findViewById(R.id.toolbar))) {
+                                ContentValues cv = new ContentValues();
+                                try {
+                                    JSONObject input = urlCatch.getJSONObject(index);
+                                    cv.put("webTitle", input.getString("webTitle"));
+                                    cv.put("webUrl", input.getString("webUrl"));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                Toast.makeText(getActivity(),"added",Toast.LENGTH_SHORT).show();
+                                //즐겨찾기 db에 집어넣기
+                                cr.insert(FAV_URI, cv);
+                                cv.clear();
+                            }
+                                break;
+                            case DragEvent.ACTION_DRAG_ENTERED:
+
+                                break;
+
+                        }
+                        return true;
+                    }
+                });
+               /*
+                Log.d("drag", view.getId()+"");
+                if(view==null){
+                    Log.d("drag","null");
+                }else{
+                    Log.d("drag","isis");
+                }
                 PopupMenu pop = new PopupMenu(parent.getContext(), view);
+
                 pop.getMenuInflater().inflate(R.menu.fav_menu_pop,pop.getMenu());
 
                 final int index = position;
@@ -209,7 +258,9 @@ public class NewsFrog extends Fragment{
                     }
                 });
                 pop.show();
+                */
                 return true;
+
             }
         });
 
