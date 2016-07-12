@@ -1,7 +1,13 @@
 package com.example.nemus.newspaper2;
 
+import android.content.ClipData;
+import android.content.ClipDescription;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.net.Uri;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 
 import android.support.v4.app.Fragment;
@@ -9,10 +15,18 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.DragEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -52,8 +66,27 @@ public class MainActivity extends AppCompatActivity {
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
-
-
+        tabLayout.setOnDragListener(new View.OnDragListener() {
+            @Override
+            public boolean onDrag(View view, DragEvent dragEvent) {
+                if ((dragEvent.getAction() == DragEvent.ACTION_DROP) && (view == findViewById(R.id.tabs))) {
+                    ContentValues cv = new ContentValues();
+                    ContentResolver cr = getContentResolver();
+                    try {
+                        JSONObject input = (JSONObject) newsFrog.screen.getAdapter().getItem(newsFrog.pos);
+                        cv.put("webTitle", input.getString("webTitle"));
+                        cv.put("webUrl", input.getString("webUrl"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    Toast.makeText(getApplicationContext(), "added", Toast.LENGTH_SHORT).show();
+                    //즐겨찾기 db에 집어넣기
+                    cr.insert(Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/fav"), cv);
+                    cv.clear();
+                }
+                return true;
+            }
+        });
     }
 
 

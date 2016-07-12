@@ -36,7 +36,7 @@ import java.util.ArrayList;
  */
 public class NewsFrog extends Fragment{
 
-    private ListView screen;
+    public ListView screen;
     private NewsAdaptor adapter=null;
     private JSONArray newsArray =null;
     private ArrayList<JSONObject> saveWord = new ArrayList<JSONObject>();
@@ -62,6 +62,8 @@ public class NewsFrog extends Fragment{
 
     private long time = 0;
     private final long delayMillSec = 60*1000;
+
+    public int pos=0;
 
     private final Uri REC_URI = Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/rec");
     private final Uri FAV_URI = Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/fav");
@@ -145,7 +147,7 @@ public class NewsFrog extends Fragment{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         //초기화
-        View rootView = inflater.inflate(R.layout.fragment_news, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_news, container, false);
         screen = (ListView) rootView.findViewById(R.id.news_listView);
         screen.setAdapter(adapter);
 
@@ -186,6 +188,7 @@ public class NewsFrog extends Fragment{
             }
         });
 
+
         //긴 클릭 리스너 설정
         screen.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
@@ -194,75 +197,18 @@ public class NewsFrog extends Fragment{
                 ClipData.Item item = new ClipData.Item((CharSequence) view.getTag());
                 Log.d("drag", view.toString());
                 ClipData data = new ClipData((CharSequence)view.getTag(), new String[]{ClipDescription.MIMETYPE_TEXT_PLAIN}, item);
+                pos = position;
                 View.DragShadowBuilder shadow = new View.DragShadowBuilder(view);
                 final int index = position;
 
                 view.startDrag(data,shadow,view,0);
-                view.setOnDragListener(new View.OnDragListener() {
-                    @Override
-                    public boolean onDrag(View view, DragEvent dragEvent) {
-                        Log.d("drag id", view.getId()+"");
-                        switch(dragEvent.getAction()){
-                            case DragEvent.ACTION_DROP:
-                            if (view.equals(getActivity().findViewById(R.id.toolbar))) {
-                                ContentValues cv = new ContentValues();
-                                try {
-                                    JSONObject input = urlCatch.getJSONObject(index);
-                                    cv.put("webTitle", input.getString("webTitle"));
-                                    cv.put("webUrl", input.getString("webUrl"));
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                                Toast.makeText(getActivity(),"added",Toast.LENGTH_SHORT).show();
-                                //즐겨찾기 db에 집어넣기
-                                cr.insert(FAV_URI, cv);
-                                cv.clear();
-                            }
-                                break;
-                            case DragEvent.ACTION_DRAG_ENTERED:
+                
 
-                                break;
-
-                        }
-                        return true;
-                    }
-                });
-               /*
-                Log.d("drag", view.getId()+"");
-                if(view==null){
-                    Log.d("drag","null");
-                }else{
-                    Log.d("drag","isis");
-                }
-                PopupMenu pop = new PopupMenu(parent.getContext(), view);
-
-                pop.getMenuInflater().inflate(R.menu.fav_menu_pop,pop.getMenu());
-
-                final int index = position;
-                //팝업메뉴 리스너 설정
-                pop.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        ContentValues cv = new ContentValues();
-                        try {
-                            JSONObject input = urlCatch.getJSONObject(index);
-                            cv.put("webTitle",input.getString("webTitle"));
-                            cv.put("webUrl",input.getString("webUrl"));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        //즐겨찾기 db에 집어넣기
-                        cr.insert(FAV_URI,cv);
-                        cv.clear();
-                        return false;
-                    }
-                });
-                pop.show();
-                */
                 return true;
 
             }
         });
+
 
         return rootView;
     }
