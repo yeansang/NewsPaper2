@@ -13,12 +13,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.PopupMenu;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -37,7 +35,7 @@ import java.util.ArrayList;
 public class NewsFrog extends Fragment{
 
     public ListView screen;
-    private NewsAdaptor adapter=null;
+    public NewsAdaptor adapter=null;
     private JSONArray newsArray =null;
     private ArrayList<JSONObject> saveWord = new ArrayList<JSONObject>();
     private ContentResolver cr = null;
@@ -64,6 +62,7 @@ public class NewsFrog extends Fragment{
     private final long delayMillSec = 60*1000;
 
     public int pos=0;
+    public View outView;
 
     private final Uri REC_URI = Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/rec");
     private final Uri FAV_URI = Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/fav");
@@ -104,7 +103,7 @@ public class NewsFrog extends Fragment{
     public void refresh(){
         ContentValues cv = new ContentValues();
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        cr.delete(NEWS_URI,null,null);
+        cr.delete(NEWS_URI,"'%'",new String[]{"pos"});
         try {
             //newsArray = new JSONArray();
             newsArray = new GetGuardianNews().execute().get();
@@ -193,19 +192,25 @@ public class NewsFrog extends Fragment{
         screen.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-
                 ClipData.Item item = new ClipData.Item((CharSequence) view.getTag());
                 Log.d("drag", view.toString());
                 ClipData data = new ClipData((CharSequence)view.getTag(), new String[]{ClipDescription.MIMETYPE_TEXT_PLAIN}, item);
                 pos = position;
-                View.DragShadowBuilder shadow = new View.DragShadowBuilder(view);
+                outView = view;
+                final View.DragShadowBuilder shadow = new View.DragShadowBuilder(view);
+                shadow.getView().setBackgroundColor(Color.WHITE);
                 final int index = position;
-
                 view.startDrag(data,shadow,view,0);
-                
-
+                view.setOnDragListener(new View.OnDragListener() {
+                    @Override
+                    public boolean onDrag(View v, DragEvent dragEvent) {
+                        if(dragEvent.getAction()==DragEvent.ACTION_DROP){
+                            shadow.getView().setBackgroundColor(0);
+                        }
+                        return true;
+                    }
+                });
                 return true;
-
             }
         });
 

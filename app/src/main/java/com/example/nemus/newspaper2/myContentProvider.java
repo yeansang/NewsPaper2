@@ -153,9 +153,14 @@ public class myContentProvider extends ContentProvider {
                     break;
                 }
             case 2:
-                cr=db.rawQuery("SELECT * FROM REC",null);
-                db.execSQL("DELETE FROM NEWS;");
-                break;
+                cr = db.rawQuery("SELECT * FROM NEWS WHERE "+selectionArgs[0]+" LIKE "+selection+"",null);
+                if(!cr.moveToNext()){
+                    break;
+                }else{
+                    db.execSQL("DELETE FROM NEWS WHERE "+selectionArgs[0]+" LIKE "+selection+";");
+                    db.execSQL("UPDATE NEWS SET pos=pos-1 WHERE pos>"+cr.getString(3)+";");
+                    break;
+                }
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }

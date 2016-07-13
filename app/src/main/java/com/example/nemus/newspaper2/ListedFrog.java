@@ -146,7 +146,7 @@ public class ListedFrog extends Fragment {
                         if(item.getItemId() == R.id.delete){
                             Cursor wordData = cr.query(DBURI,null,null,null,null);
                             wordData.moveToPosition(index);
-                            getActivity().getContentResolver().delete(DBURI,""+(index+1),new String[]{"pos"});
+                            cr.delete(DBURI,""+(index+1),new String[]{"pos"});
                             Log.d("data",wordData.getString(1));
                             adapter.notifyDataSetChanged();
                             wordData.close();

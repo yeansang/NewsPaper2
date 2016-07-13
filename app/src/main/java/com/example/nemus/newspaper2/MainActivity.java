@@ -1,5 +1,7 @@
 package com.example.nemus.newspaper2;
 
+import android.animation.AnimatorInflater;
+import android.animation.AnimatorSet;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.ContentResolver;
@@ -21,6 +23,12 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.AnimationUtils;
+import android.view.animation.ScaleAnimation;
+import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,6 +55,35 @@ public class MainActivity extends AppCompatActivity {
     public static TextView emptyView;
     private NewsFrog newsFrog;
 
+    private void deleteAnimation(View view){
+        Animation ani = AnimationUtils.loadAnimation(getBaseContext(),R.anim.delete);
+        view.startAnimation(ani);
+    }
+
+    private void addAnimation(final View view){
+        Animation ani = AnimationUtils.loadAnimation(getBaseContext(),R.anim.add);
+        ani.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                Log.d("aniX", view.getX()+"");
+                Log.d("aniY", view.getY()+"");
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+                Log.d("aniX", view.getX()+"");
+                Log.d("aniY", view.getY()+"");
+            }
+        });
+        view.startAnimation(ani);
+        view.setBackgroundColor(0);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,6 +100,22 @@ public class MainActivity extends AppCompatActivity {
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+        mViewPager.setOnDragListener(new View.OnDragListener() {
+            @Override
+            public boolean onDrag(View view, DragEvent dragEvent) {
+                Log.d("x",""+dragEvent.getX());
+                Log.d("y",""+dragEvent.getY());
+                if(dragEvent.getAction()==DragEvent.ACTION_DROP) {
+                    Log.d("drag", "deleted");
+                    ContentResolver cr = getContentResolver();
+                    cr.delete(Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/news"),(newsFrog.pos)+"",new String[]{"pos"});
+                    deleteAnimation(newsFrog.outView);
+                    newsFrog.listRefresh();
+                    newsFrog.adapter.notifyDataSetChanged();
+                }
+                return false;
+            }
+        });
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
@@ -79,6 +132,8 @@ public class MainActivity extends AppCompatActivity {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+                    addAnimation(newsFrog.outView);
+                    //newsFrog.screen.getSelectedView().setBackgroundColor(0);
                     Toast.makeText(getApplicationContext(), "added", Toast.LENGTH_SHORT).show();
                     //즐겨찾기 db에 집어넣기
                     cr.insert(Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/fav"), cv);
