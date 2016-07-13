@@ -2,10 +2,13 @@ package com.example.nemus.newspaper2;
 
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.net.Uri;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +21,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Property;
 import android.view.DragEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -62,26 +66,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void addAnimation(final View view){
         Animation ani = AnimationUtils.loadAnimation(getBaseContext(),R.anim.add);
-        ani.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                Log.d("aniX", view.getX()+"");
-                Log.d("aniY", view.getY()+"");
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-                Log.d("aniX", view.getX()+"");
-                Log.d("aniY", view.getY()+"");
-            }
-        });
         view.startAnimation(ani);
-        view.setBackgroundColor(0);
+        view.setBackgroundColor(Color.WHITE);
+        /*view.animate().scaleX(0.4f).scaleY(0.4f).translationX(view.getX()).translationY(0.0f - view.getY()).setDuration(1000);
+        view.animate().cancel();*/
+       /* Animation ani = AnimationUtils.loadAnimation(getBaseContext(),R.anim.add);
+        view.startAnimation(ani);*/
     }
 
     @Override
@@ -109,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("drag", "deleted");
                     ContentResolver cr = getContentResolver();
                     cr.delete(Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/news"),(newsFrog.pos)+"",new String[]{"pos"});
-                    deleteAnimation(newsFrog.outView);
+                    deleteAnimation((View)dragEvent.getLocalState());
                     newsFrog.listRefresh();
                     newsFrog.adapter.notifyDataSetChanged();
                 }
@@ -132,12 +122,17 @@ public class MainActivity extends AppCompatActivity {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    addAnimation(newsFrog.outView);
+                    addAnimation((View)dragEvent.getLocalState());
                     //newsFrog.screen.getSelectedView().setBackgroundColor(0);
                     Toast.makeText(getApplicationContext(), "added", Toast.LENGTH_SHORT).show();
                     //즐겨찾기 db에 집어넣기
                     cr.insert(Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/fav"), cv);
                     cv.clear();
+                    view.setBackgroundColor(0);
+                }else if(dragEvent.getAction()==DragEvent.ACTION_DRAG_ENTERED){
+                    view.setBackgroundColor(Color.DKGRAY);
+                }else if(dragEvent.getAction()==DragEvent.ACTION_DRAG_EXITED){
+                    view.setBackgroundColor(0);
                 }
                 return true;
             }

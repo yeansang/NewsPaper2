@@ -62,7 +62,6 @@ public class NewsFrog extends Fragment{
     private final long delayMillSec = 60*1000;
 
     public int pos=0;
-    public View outView;
 
     private final Uri REC_URI = Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/rec");
     private final Uri FAV_URI = Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/fav");
@@ -111,16 +110,16 @@ public class NewsFrog extends Fragment{
             e.printStackTrace();
         }
         if(newsArray!=null){
+            try {
             for(int i=0;i<newsArray.length();i++){
-                try {
                     JSONObject in = newsArray.getJSONObject(i);
                     cv.put("webTitle",in.getString("webTitle"));
                     cv.put("webUrl",in.getString("webUrl"));
                     cv.put("pos",i);
                     cr.insert(NEWS_URI,cv);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+            }
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
         }
 
@@ -196,7 +195,6 @@ public class NewsFrog extends Fragment{
                 Log.d("drag", view.toString());
                 ClipData data = new ClipData((CharSequence)view.getTag(), new String[]{ClipDescription.MIMETYPE_TEXT_PLAIN}, item);
                 pos = position;
-                outView = view;
                 final View.DragShadowBuilder shadow = new View.DragShadowBuilder(view);
                 shadow.getView().setBackgroundColor(Color.WHITE);
                 final int index = position;
