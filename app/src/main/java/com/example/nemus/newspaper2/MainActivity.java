@@ -24,6 +24,9 @@ import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.nemus.newspaper2.DragandDrop.DragController;
+import com.example.nemus.newspaper2.DragandDrop.DragLayer;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -46,6 +49,9 @@ public class MainActivity extends AppCompatActivity {
     public static TextView emptyView;
     private NewsFrog newsFrog;
 
+    private DragController mDragController;   // Object that handles a drag-drop sequence. It intersacts with DragSource and DropTarget objects.
+    private DragLayer mDragLayer;
+
     private void deleteAnimation(View view){
         Animation ani = AnimationUtils.loadAnimation(getBaseContext(),R.anim.delete);
         view.startAnimation(ani);
@@ -67,6 +73,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         newsFrog = NewsFrog.newInstance();
+
+        mDragController = new DragController(this);
+        mDragLayer = (DragLayer)findViewById(R.id.drag_layer);
+        mDragLayer.setDragController(mDragController);
+        mDragController.setDragListener(mDragLayer);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
