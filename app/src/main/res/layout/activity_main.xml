@@ -31,16 +31,16 @@
 
         </android.support.v7.widget.Toolbar>
 
-        <android.support.design.widget.TabLayout
+        <com.example.nemus.newspaper2.DropTab
             android:id="@+id/tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
-        </android.support.design.widget.TabLayout>
+        </com.example.nemus.newspaper2.DropTab>
 
 
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v4.view.ViewPager
+    <com.example.nemus.newspaper2.DropPager
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.example.nemus.newspaper2.DragPiece xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:padding="6dip" android:orientation="vertical">
@@ -18,4 +18,4 @@
         android:ellipsize="marquee"
         android:layout_height="wrap_content"/>
 
-</LinearLayout>
+</com.example.nemus.newspaper2.DragPiece>

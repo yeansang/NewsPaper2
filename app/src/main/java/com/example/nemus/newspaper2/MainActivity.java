@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     public static TextView emptyView;
     private NewsFrog newsFrog;
 
-    private DragController mDragController;   // Object that handles a drag-drop sequence. It intersacts with DragSource and DropTarget objects.
+       // Object that handles a drag-drop sequence. It intersacts with DragSource and DropTarget objects.
     private DragLayer mDragLayer;
 
     private void deleteAnimation(View view){
@@ -74,10 +74,10 @@ public class MainActivity extends AppCompatActivity {
 
         newsFrog = NewsFrog.newInstance();
 
-        mDragController = new DragController(this);
+        newsFrog.mDragController = new DragController(this);
         mDragLayer = (DragLayer)findViewById(R.id.drag_layer);
-        mDragLayer.setDragController(mDragController);
-        mDragController.setDragListener(mDragLayer);
+        mDragLayer.setDragController(newsFrog.mDragController);
+        newsFrog.mDragController.setDragListener(mDragLayer);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -86,55 +86,12 @@ public class MainActivity extends AppCompatActivity {
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
+        mViewPager = (DropPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
-        mViewPager.setOnDragListener(new View.OnDragListener() {
-            @Override
-            public boolean onDrag(View view, DragEvent dragEvent) {
-                Log.d("x",""+dragEvent.getX());
-                Log.d("y",""+dragEvent.getY());
-                if(dragEvent.getAction()==DragEvent.ACTION_DROP) {
-                    Log.d("drag", "deleted");
-                    ContentResolver cr = getContentResolver();
-                    cr.delete(Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/news"),(newsFrog.pos)+"",new String[]{"pos"});
-                    deleteAnimation((View)dragEvent.getLocalState());
-                    newsFrog.listRefresh();
-                    newsFrog.adapter.notifyDataSetChanged();
-                }
-                return false;
-            }
-        });
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
-        tabLayout.setOnDragListener(new View.OnDragListener() {
-            @Override
-            public boolean onDrag(View view, DragEvent dragEvent) {
-                if ((dragEvent.getAction() == DragEvent.ACTION_DROP) && (view == findViewById(R.id.tabs))) {
-                    ContentValues cv = new ContentValues();
-                    ContentResolver cr = getContentResolver();
-                    try {
-                        JSONObject input = (JSONObject) newsFrog.screen.getAdapter().getItem(newsFrog.pos);
-                        cv.put("webTitle", input.getString("webTitle"));
-                        cv.put("webUrl", input.getString("webUrl"));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    addAnimation((View)dragEvent.getLocalState());
-                    //newsFrog.screen.getSelectedView().setBackgroundColor(0);
-                    Toast.makeText(getApplicationContext(), "added", Toast.LENGTH_SHORT).show();
-                    //즐겨찾기 db에 집어넣기
-                    cr.insert(Uri.parse("content://com.example.nemus.newspaper2.myContentProvider/fav"), cv);
-                    cv.clear();
-                    view.setBackgroundColor(0);
-                }else if(dragEvent.getAction()==DragEvent.ACTION_DRAG_ENTERED){
-                    view.setBackgroundColor(Color.DKGRAY);
-                }else if(dragEvent.getAction()==DragEvent.ACTION_DRAG_EXITED){
-                    view.setBackgroundColor(0);
-                }
-                return true;
-            }
-        });
+
     }
 
 

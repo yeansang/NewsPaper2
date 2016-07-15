@@ -29,6 +29,9 @@ import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.Toast;
 
+import com.example.nemus.newspaper2.DropPager;
+import com.example.nemus.newspaper2.R;
+
 /**
  * A ViewGroup that supports dragging within it.
  * Dragging starts in an object that implements the DragSource interface and
@@ -134,11 +137,11 @@ public void onDragStart(DragSource source, Object info, int dragAction)
     // Always add the delete_zone so there is a place to get rid of views.
     // Find the delete_zone and add it as a drop target.
     // That gives the user a place to drag views to get them off the screen.
-    /*View v = findViewById (R.id.bottom_container);
+    View v = findViewById (R.id.container);
     if (v != null) {
-       DeleteZone dz = (DeleteZone) v;
+       DropPager dz = (DropPager) v;
        mDragController.addDropTarget (dz);
-    }*/
+    }
 }
 
 /**

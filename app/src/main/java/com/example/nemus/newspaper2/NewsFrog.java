@@ -17,11 +17,15 @@ import android.util.Log;
 import android.view.DragEvent;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.example.nemus.newspaper2.DragandDrop.DragController;
+import com.example.nemus.newspaper2.DragandDrop.DragSource;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,6 +44,9 @@ public class NewsFrog extends Fragment{
     private ArrayList<JSONObject> saveWord = new ArrayList<JSONObject>();
     private ContentResolver cr = null;
     private boolean manualRefresh = false;
+    private boolean mLongClickStartsDrag = false;
+
+    public DragController mDragController;
 
     private SharedPreferences sharedPreferences;
 
@@ -135,6 +142,8 @@ public class NewsFrog extends Fragment{
         super.onCreate(savedInstanceState);
         cr = getActivity().getContentResolver();
 
+        mDragController = new DragController(getActivity());
+
         sharedPreferences = getActivity().getSharedPreferences(getString(R.string.preference_file_key),Context.MODE_PRIVATE);
         time = sharedPreferences.getLong(getString(R.string.preference_time),0);
         //뉴스 데이터 불러오기. 뉴스 데이터는 만들어질때 1번만 불러온다.
@@ -191,24 +200,47 @@ public class NewsFrog extends Fragment{
         screen.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                ClipData.Item item = new ClipData.Item((CharSequence) view.getTag());
-                Log.d("drag", view.toString());
-                ClipData data = new ClipData((CharSequence)view.getTag(), new String[]{ClipDescription.MIMETYPE_TEXT_PLAIN}, item);
-                pos = position;
-                final View.DragShadowBuilder shadow = new View.DragShadowBuilder(view);
-                shadow.getView().setBackgroundColor(Color.WHITE);
-                final int index = position;
-                view.startDrag(data,shadow,view,0);
-                view.setOnDragListener(new View.OnDragListener() {
-                    @Override
-                    public boolean onDrag(View v, DragEvent dragEvent) {
-                        if(dragEvent.getAction()==DragEvent.ACTION_DROP){
-                            shadow.getView().setBackgroundColor(0);
-                        }
-                        return true;
+                if (mLongClickStartsDrag) {
+
+                    //trace ("onLongClick in view: " + v + " touchMode: " + v.isInTouchMode ());
+
+                    // Make sure the drag was started by a long press as opposed to a long click.
+                    // (Note: I got this from the Workspace object in the Android Launcher code.
+                    //  I think it is here to ensure that the device is still in touch mode as we start the drag operation.)
+                    if (!view.isInTouchMode()) {
+                        return false;
                     }
-                });
+
+                    return true;
+                }
+                DragSource dragSource = (DragSource) view;
+
+                // We are starting a drag. Let the DragController handle it.
+                mDragController.startDrag (view, dragSource, dragSource, DragController.DRAG_ACTION_MOVE);
+                // If we get here, return false to indicate that we have not taken care of the event.
                 return true;
+            }
+        });
+        screen.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                /*if (mLongClickStartsDrag) return true;
+
+                boolean handledHere = false;
+
+                final int action = motionEvent.getAction();
+
+                // In the situation where a long click is not needed to initiate a drag, simply start on the down event.
+                if (action == MotionEvent.ACTION_DOWN) {
+                    DragSource dragSource = (DragSource) view;
+
+                    // We are starting a drag. Let the DragController handle it.
+                    mDragController.startDrag (view, dragSource, dragSource, DragController.DRAG_ACTION_MOVE);
+                    handledHere = true;
+                    if (handledHere) view.performLongClick();
+                }*/
+
+                return false;
             }
         });
 

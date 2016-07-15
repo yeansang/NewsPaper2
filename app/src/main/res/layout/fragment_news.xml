@@ -7,7 +7,7 @@
     tools:context="com.example.nemus.newspaper2.NewsFrog"
     android:fillViewport="false"
     android:orientation="horizontal">
-<ListView
+<com.example.nemus.newspaper2.DragList
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="start"
