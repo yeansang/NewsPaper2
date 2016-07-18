@@ -30,6 +30,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.ViewManager;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -233,7 +234,7 @@ public class DragController {
         mVibrator.vibrate(VIBRATE_DURATION);
 
         DragView dragView = mDragView = new DragView(mContext, b, registrationX, registrationY,
-                textureLeft, textureTop, textureWidth, textureHeight);
+                textureLeft, textureTop, textureWidth, textureHeight, (ViewManager)mListener);
         dragView.show(mWindowToken, (int)mMotionDownX, (int)mMotionDownY);
     }
 

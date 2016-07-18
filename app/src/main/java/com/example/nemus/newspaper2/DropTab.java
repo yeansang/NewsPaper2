@@ -32,17 +32,16 @@ public class DropTab extends TabLayout implements DropTarget{
     public void onDrop(DragSource source, int x, int y, int xOffset, int yOffset, final DragView dragView, Object dragInfo) {
         Log.d("drag","droptab");
         Log.d("dragdrop", x+"");
-        int xMove=520-x;
 
+        dragView.setBackgroundColor(Color.WHITE);
 
-
-        dragView.animate().scaleX(1.5f).scaleY(1.5f).translationXBy(xMove).setDuration(1000);
+        dragView.animate().scaleX(0.4f).scaleY(0.4f).translationX(0).setDuration(1000);
         dragView.animate().setListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animator) {}
             @Override
             public void onAnimationEnd(Animator animator) {
-                //dragView.remove();
+                dragView.remove();
             }
             @Override
             public void onAnimationCancel(Animator animator){}

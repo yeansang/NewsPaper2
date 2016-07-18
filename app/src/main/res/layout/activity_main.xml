@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
+<com.example.nemus.newspaper2.DragandDrop.DragLayer
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/drag_layer">
+
+<android.support.design.widget.CoordinatorLayout
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_content"
@@ -9,10 +14,7 @@
     android:fitsSystemWindows="true"
     tools:context="com.example.nemus.newspaper2.MainActivity">
 
-    <com.example.nemus.newspaper2.DragandDrop.DragLayer
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/drag_layer">
+
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbar"
@@ -44,8 +46,9 @@
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="110dp"
+        android:layout_marginBottom="50dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
-    </com.example.nemus.newspaper2.DragandDrop.DragLayer>
+
 
 </android.support.design.widget.CoordinatorLayout>
+</com.example.nemus.newspaper2.DragandDrop.DragLayer>

@@ -19,6 +19,7 @@
 
 package com.example.nemus.newspaper2.DragandDrop;
 
+import android.animation.Animator;
 import android.app.ActionBar;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -31,6 +32,7 @@ import android.os.IBinder;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewManager;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -57,8 +59,12 @@ public class DragView extends View
     private float mScale;
     private float mAnimationScale = 0.9f;
 
-    private WindowManager.LayoutParams mLayoutParams;
-    private WindowManager mWindowManager;
+    private ViewGroup.LayoutParams mLayoutParams;
+    private ViewManager mWindowManager;
+
+    private int[] outX = new int[]{0,0};
+    private int[] outY = new int[]{0,0};
+    private long[] outT = new long[]{0,0};
 
     /**
      * Construct the drag view.
@@ -72,11 +78,11 @@ public class DragView extends View
      * @param registrationY The y coordinate of the registration point.
      */
     public DragView(Context context, Bitmap bitmap, int registrationX, int registrationY,
-            int left, int top, int width, int height) {
+            int left, int top, int width, int height, ViewManager manager) {
         super(context);
 
         // mWindowManager = WindowManagerImpl.getDefault();
-        mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        mWindowManager = manager;
 
         Matrix scale = new Matrix();
         float scaleFactor = width;
@@ -144,24 +150,18 @@ public class DragView extends View
      * @param touchY the y coordinate the user touched in screen coordinates
      */
     public void show(IBinder windowToken, int touchX, int touchY) {
-        WindowManager.LayoutParams lp;
+        ViewGroup.LayoutParams lp;
         int pixelFormat;
 
         pixelFormat = PixelFormat.TRANSLUCENT;
 
-        lp = new WindowManager.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                touchX-mRegistrationX, touchY-mRegistrationY,
-                WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL,
-                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
-                    | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-                    /*| WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM*/,
-                pixelFormat);
+        lp = new ViewGroup.LayoutParams(
+                touchX, touchY
+                );
+        setX(touchX - mRegistrationX);
+        setY(touchY - mRegistrationY);
+        this.bringToFront();
 //        lp.token = mStatusBarView.getWindowToken();
-        lp.gravity = Gravity.LEFT | Gravity.TOP;
-        lp.token = windowToken;
-        lp.setTitle("DragView");
         mLayoutParams = lp;
 
         mWindowManager.addView(this, lp);
@@ -176,14 +176,48 @@ public class DragView extends View
      */
     public void move(int touchX, int touchY) {
         // This is what was done in the Launcher code.
-        WindowManager.LayoutParams lp = mLayoutParams;
-        lp.x = touchX - mRegistrationX;
+        ViewGroup.LayoutParams lp = mLayoutParams;
+        /*lp.x = touchX - mRegistrationX;
         lp.y = touchY - mRegistrationY;
-        mWindowManager.updateViewLayout(this, lp);
+        mWindowManager.updateViewLayout(this, lp);*/
+
+        outX[0] = outX[1];
+        outY[0] = outY[1];
+        outT[0] = outT[1];
+
+        outX[1] = touchX;
+        outY[1] = touchY;
+        outT[1] = System.currentTimeMillis();
+
+        setX(touchX - mRegistrationX);
+        setY(touchY - mRegistrationY);
     }
 
     public void remove() {
         mWindowManager.removeView(this);
+    }
+
+    public void goFaraway(){
+        int xf = outX[1]-outX[0];
+        int yf = outY[1]-outY[0];
+        long t = outT[1]-outT[0];
+
+        this.animate().translationX(outX[1]+xf*100).translationY(outY[1]+yf*100).setDuration(t*100);
+        this.animate().setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {}
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                remove();
+            }
+            @Override
+            public void onAnimationCancel(Animator animator){}
+            @Override
+            public void onAnimationRepeat(Animator animator){
+//                Log.d("drag","repeat");
+//                dragView.move(x,y);
+            }
+        });
     }
 }
 

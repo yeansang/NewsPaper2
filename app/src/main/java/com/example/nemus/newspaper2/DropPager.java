@@ -49,8 +49,10 @@ public class DropPager extends ViewPager implements DropTarget{
         }
 
         Log.d("drag","drop pager");
+        Log.d("drag",dragView.getParent().getClass().getSimpleName());
         dragView.setBackgroundColor(Color.WHITE);
-        dragView.animate().translationY(1000).setDuration(1000);
+        dragView.goFaraway();
+        /*dragView.animate().translationY(1800).setDuration(1000);
         dragView.animate().setListener(new Animator.AnimatorListener() {
             int yi = y;
             @Override
@@ -66,7 +68,7 @@ public class DropPager extends ViewPager implements DropTarget{
 //                Log.d("drag","repeat");
 //                dragView.move(x,y);
 }
-        });
+        });*/
 
         //dragView.remove();
 

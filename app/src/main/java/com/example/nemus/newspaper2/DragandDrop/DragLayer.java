@@ -25,6 +25,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewManager;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.Toast;
@@ -44,7 +45,7 @@ import com.example.nemus.newspaper2.R;
  * The child views of the GridView are assumed to implement the DropTarget interface. 
  */
 public class DragLayer extends FrameLayout
-    implements DragController.DragListener
+    implements DragController.DragListener, ViewManager
 {
     DragController mDragController;
     GridView mGridView;
