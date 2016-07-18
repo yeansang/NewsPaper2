@@ -7,6 +7,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
@@ -44,11 +45,20 @@ public class NewsFrog extends Fragment{
     private ArrayList<JSONObject> saveWord = new ArrayList<JSONObject>();
     private ContentResolver cr = null;
     private boolean manualRefresh = false;
-    private boolean mLongClickStartsDrag = false;
 
     public DragController mDragController;
 
     private SharedPreferences sharedPreferences;
+
+    private ContentObserver observer = new ContentObserver(new Handler()) {
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+            super.onChange(selfChange, uri);
+            //바뀐 신호가 들어오면 새로고침
+            listRefresh();
+            //Log.d("change", "brand new " + getArguments().getString(ARG_TABNAME));
+        }
+    };
 
     private Handler handler = new Handler();
     private Runnable timedTask = new Runnable(){
@@ -77,6 +87,10 @@ public class NewsFrog extends Fragment{
     public NewsFrog() {
     }
 
+    public NewsFrog(DragController dragController){
+        mDragController = dragController;
+    }
+
     public static NewsFrog newInstance() {
         NewsFrog fragment = new NewsFrog();
         return fragment;
@@ -97,6 +111,7 @@ public class NewsFrog extends Fragment{
             e.printStackTrace();
         }
         screen.setAdapter(adapter);
+        wordData.close();
     }
 
     public void manualPost(){
@@ -142,7 +157,7 @@ public class NewsFrog extends Fragment{
         super.onCreate(savedInstanceState);
         cr = getActivity().getContentResolver();
 
-        mDragController = new DragController(getActivity());
+        //mDragController = new DragController(getActivity());
 
         sharedPreferences = getActivity().getSharedPreferences(getString(R.string.preference_file_key),Context.MODE_PRIVATE);
         time = sharedPreferences.getLong(getString(R.string.preference_time),0);
@@ -197,10 +212,11 @@ public class NewsFrog extends Fragment{
 
 
         //긴 클릭 리스너 설정
+
         screen.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                if (mLongClickStartsDrag) {
+                /*if (mLongClickStartsDrag) {
 
                     //trace ("onLongClick in view: " + v + " touchMode: " + v.isInTouchMode ());
 
@@ -210,40 +226,24 @@ public class NewsFrog extends Fragment{
                     if (!view.isInTouchMode()) {
                         return false;
                     }
-
+                    DragSource dragSource = (DragSource) view;
+                    // We are starting a drag. Let the DragController handle it.
+                    mDragController.startDrag (view, dragSource, dragSource, DragController.DRAG_ACTION_MOVE);
+                    mLongClickStartsDrag = false;
                     return true;
+                }*/
+                if (!view.isInTouchMode()) {
+                    return false;
                 }
                 DragSource dragSource = (DragSource) view;
-
                 // We are starting a drag. Let the DragController handle it.
-                mDragController.startDrag (view, dragSource, dragSource, DragController.DRAG_ACTION_MOVE);
+                mDragController.startDrag (view, dragSource, adapter.getItem(position), DragController.DRAG_ACTION_MOVE);
+
+
                 // If we get here, return false to indicate that we have not taken care of the event.
                 return true;
             }
         });
-        screen.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                /*if (mLongClickStartsDrag) return true;
-
-                boolean handledHere = false;
-
-                final int action = motionEvent.getAction();
-
-                // In the situation where a long click is not needed to initiate a drag, simply start on the down event.
-                if (action == MotionEvent.ACTION_DOWN) {
-                    DragSource dragSource = (DragSource) view;
-
-                    // We are starting a drag. Let the DragController handle it.
-                    mDragController.startDrag (view, dragSource, dragSource, DragController.DRAG_ACTION_MOVE);
-                    handledHere = true;
-                    if (handledHere) view.performLongClick();
-                }*/
-
-                return false;
-            }
-        });
-
 
         return rootView;
     }

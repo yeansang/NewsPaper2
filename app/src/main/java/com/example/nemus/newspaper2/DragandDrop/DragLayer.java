@@ -30,6 +30,7 @@ import android.widget.GridView;
 import android.widget.Toast;
 
 import com.example.nemus.newspaper2.DropPager;
+import com.example.nemus.newspaper2.DropTab;
 import com.example.nemus.newspaper2.R;
 
 /**
@@ -137,10 +138,15 @@ public void onDragStart(DragSource source, Object info, int dragAction)
     // Always add the delete_zone so there is a place to get rid of views.
     // Find the delete_zone and add it as a drop target.
     // That gives the user a place to drag views to get them off the screen.
-    View v = findViewById (R.id.container);
-    if (v != null) {
-       DropPager dz = (DropPager) v;
+    View con = findViewById (R.id.container);
+    if (con != null) {
+       DropPager dz = (DropPager) con;
        mDragController.addDropTarget (dz);
+    }
+    View v = findViewById (R.id.tabs);
+    if (v != null) {
+        DropTab dz = (DropTab) v;
+        mDragController.addDropTarget (dz);
     }
 }
 

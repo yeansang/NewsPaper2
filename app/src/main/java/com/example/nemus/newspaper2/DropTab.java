@@ -1,10 +1,17 @@
 package com.example.nemus.newspaper2;
 
+import android.animation.Animator;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Rect;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewParent;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 
 import com.example.nemus.newspaper2.DragandDrop.DragSource;
 import com.example.nemus.newspaper2.DragandDrop.DragView;
@@ -22,13 +29,33 @@ public class DropTab extends TabLayout implements DropTarget{
     }
 
     @Override
-    public void onDrop(DragSource source, int x, int y, int xOffset, int yOffset, DragView dragView, Object dragInfo) {
+    public void onDrop(DragSource source, int x, int y, int xOffset, int yOffset, final DragView dragView, Object dragInfo) {
         Log.d("drag","droptab");
+        Log.d("dragdrop", x+"");
+        int xMove=520-x;
+
+
+
+        dragView.animate().scaleX(1.5f).scaleY(1.5f).translationXBy(xMove).setDuration(1000);
+        dragView.animate().setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {}
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                //dragView.remove();
+            }
+            @Override
+            public void onAnimationCancel(Animator animator){}
+            @Override
+            public void onAnimationRepeat(Animator animator){}
+        });
     }
 
     @Override
     public void onDragEnter(DragSource source, int x, int y, int xOffset, int yOffset, DragView dragView, Object dragInfo) {
-
+        Log.d("drag","tabenter");
+        Log.d("drag", x+"");
+        this.setBackgroundColor(Color.LTGRAY);
     }
 
     @Override
@@ -38,7 +65,7 @@ public class DropTab extends TabLayout implements DropTarget{
 
     @Override
     public void onDragExit(DragSource source, int x, int y, int xOffset, int yOffset, DragView dragView, Object dragInfo) {
-
+        this.setBackgroundColor(0);
     }
 
     @Override

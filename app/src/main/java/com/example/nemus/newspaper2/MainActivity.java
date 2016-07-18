@@ -21,11 +21,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.nemus.newspaper2.DragandDrop.DragController;
 import com.example.nemus.newspaper2.DragandDrop.DragLayer;
+import com.example.nemus.newspaper2.DragandDrop.DragSource;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager mViewPager;
     public static TextView emptyView;
     private NewsFrog newsFrog;
+
+    private DragController mDragController;
 
        // Object that handles a drag-drop sequence. It intersacts with DragSource and DropTarget objects.
     private DragLayer mDragLayer;
@@ -72,12 +76,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        newsFrog = NewsFrog.newInstance();
-
-        newsFrog.mDragController = new DragController(this);
         mDragLayer = (DragLayer)findViewById(R.id.drag_layer);
-        mDragLayer.setDragController(newsFrog.mDragController);
-        newsFrog.mDragController.setDragListener(mDragLayer);
+        mDragController = new DragController(mDragLayer.getContext());
+        mDragLayer.setDragController(mDragController);
+        mDragController.setDragListener(mDragLayer);
+
+        newsFrog = new NewsFrog(mDragController);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

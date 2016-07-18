@@ -19,6 +19,7 @@
 
 package com.example.nemus.newspaper2.DragandDrop;
 
+import android.app.ActionBar;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -33,6 +34,8 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+
+import com.example.nemus.newspaper2.R;
 
 /**
  * A DragView is a special view used by a DragController. During a drag operation, what is actually moving
@@ -73,8 +76,8 @@ public class DragView extends View
         super(context);
 
         // mWindowManager = WindowManagerImpl.getDefault();
-        mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);        
-  
+        mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+
         Matrix scale = new Matrix();
         float scaleFactor = width;
         scaleFactor = mScale = (scaleFactor + DRAG_SCALE) / scaleFactor;
@@ -147,8 +150,8 @@ public class DragView extends View
         pixelFormat = PixelFormat.TRANSLUCENT;
 
         lp = new WindowManager.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT,
                 touchX-mRegistrationX, touchY-mRegistrationY,
                 WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL,
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
@@ -171,7 +174,7 @@ public class DragView extends View
      * @param touchX the x coordinate the user touched in screen coordinates
      * @param touchY the y coordinate the user touched in screen coordinates
      */
-    void move(int touchX, int touchY) {
+    public void move(int touchX, int touchY) {
         // This is what was done in the Launcher code.
         WindowManager.LayoutParams lp = mLayoutParams;
         lp.x = touchX - mRegistrationX;
@@ -179,7 +182,7 @@ public class DragView extends View
         mWindowManager.updateViewLayout(this, lp);
     }
 
-    void remove() {
+    public void remove() {
         mWindowManager.removeView(this);
     }
 }

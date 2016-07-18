@@ -303,7 +303,7 @@ public class DragController {
                 mListener.onDragEnd();
             }
             if (mDragView != null) {
-                mDragView.remove();
+                //mDragView.remove();
                 mDragView = null;
             }
         }
